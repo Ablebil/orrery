@@ -1,0 +1,192 @@
+{
+	"sun": {
+		"type": "Star",
+		"explorer": {
+			"summary": "The Sun is the star at the center of our solar system. Its gravity keeps every planet in orbit, and its light and heat power life on Earth.",
+			"facts": [
+				"More than 99.8% of all the mass in the solar system is in the Sun.",
+				"About 1.3 million Earths could fit inside it.",
+				"Sunlight takes about 8 minutes to reach Earth."
+			]
+		},
+		"scientist": {
+			"summary": "A G-type main-sequence star (G2V) fusing hydrogen into helium in its core at roughly 15 million K. Its effective surface temperature is about 5,772 K and its age is about 4.6 billion years.",
+			"facts": [
+				"Holds 99.86% of the total mass of the solar system.",
+				"Luminosity of about 3.83 x 10^26 W.",
+				"Rotates differentially: about 25 days at the equator and about 35 days near the poles."
+			]
+		}
+	},
+	"mercury": {
+		"type": "Terrestrial planet",
+		"explorer": {
+			"summary": "Mercury is the smallest planet and the closest to the Sun. It has no moons and almost no atmosphere.",
+			"facts": [
+				"Daytime surface temperatures reach about 430 degrees C, while nights drop to about -180 degrees C.",
+				"A year on Mercury lasts only 88 Earth days.",
+				"Its surface is covered in craters, much like our Moon."
+			]
+		},
+		"scientist": {
+			"summary": "A terrestrial planet in a 3:2 spin-orbit resonance, rotating three times for every two orbits. Its large iron core spans roughly 85% of the planet's radius, and it holds only a tenuous exosphere.",
+			"facts": [
+				"One solar day lasts about 176 Earth days, twice its orbital period.",
+				"The orbital eccentricity of 0.206 is the highest of any planet.",
+				"The axial tilt of about 0.03 degrees is the smallest of any planet."
+			]
+		}
+	},
+	"venus": {
+		"type": "Terrestrial planet",
+		"explorer": {
+			"summary": "Venus is the hottest planet, wrapped in thick clouds. It is similar in size to Earth, but its surface is a scorching, high-pressure desert.",
+			"facts": [
+				"Venus spins backwards compared with most planets.",
+				"A day on Venus is longer than its year.",
+				"Surface temperatures of about 465 degrees C are hot enough to melt lead."
+			]
+		},
+		"scientist": {
+			"summary": "A terrestrial planet with a dense carbon dioxide atmosphere and sulfuric acid clouds. A runaway greenhouse effect maintains a surface pressure of about 92 bar.",
+			"facts": [
+				"Retrograde rotation with a sidereal period of about 243 days, longer than its 225-day orbit.",
+				"Its axial tilt of about 177 degrees reflects the retrograde spin.",
+				"Nearly circular orbit with an eccentricity of 0.0068."
+			]
+		}
+	},
+	"earth": {
+		"type": "Terrestrial planet",
+		"explorer": {
+			"summary": "Earth is our home and the only place we know of that has life. Liquid water covers most of its surface.",
+			"facts": [
+				"About 71% of Earth's surface is covered by water.",
+				"Earth has one natural satellite, the Moon.",
+				"Earth's tilt is what gives us the seasons."
+			]
+		},
+		"scientist": {
+			"summary": "A terrestrial planet with a nitrogen-oxygen atmosphere, a global magnetic field, and active plate tectonics. Orbital data shown is for the Earth-Moon barycenter.",
+			"facts": [
+				"The atmosphere is about 78% nitrogen and 21% oxygen.",
+				"The axial tilt of 23.44 degrees drives seasonal insolation changes.",
+				"The orbital eccentricity of 0.0167 puts perihelion in early January."
+			]
+		}
+	},
+	"moon": {
+		"type": "Moon",
+		"explorer": {
+			"summary": "The Moon is Earth's only natural satellite. It always shows us the same face as it circles our planet.",
+			"facts": [
+				"It is likely the result of a giant collision early in Earth's history.",
+				"The Moon is slowly drifting away from Earth, about 3.8 centimeters each year.",
+				"Its gravity causes the ocean tides."
+			]
+		},
+		"scientist": {
+			"summary": "Earth's only natural satellite, in synchronous rotation. Its mass is about 1.2% of Earth's, and its orbit is inclined about 5.1 degrees to the ecliptic.",
+			"facts": [
+				"Tidally locked, so its rotation period equals its orbital period of 27.32 days.",
+				"The orbital eccentricity of 0.055 causes visible libration.",
+				"The orbit's line of nodes regresses with a period of about 18.6 years."
+			]
+		}
+	},
+	"mars": {
+		"type": "Terrestrial planet",
+		"explorer": {
+			"summary": "Mars is a cold, dusty desert world. Its red color comes from rusty iron in the soil.",
+			"facts": [
+				"Olympus Mons, a volcano about 22 km tall, is the tallest in the solar system.",
+				"Mars has two small moons, Phobos and Deimos.",
+				"A day on Mars is just a little longer than a day on Earth."
+			]
+		},
+		"scientist": {
+			"summary": "A terrestrial planet with a thin carbon dioxide atmosphere at roughly 0.6% of Earth's surface pressure. Past liquid water is recorded in its geology.",
+			"facts": [
+				"Rotation period of 24 h 37 min and an axial tilt of about 25 degrees give Earth-like seasons.",
+				"Valles Marineris stretches about 4,000 km.",
+				"Orbital eccentricity of 0.093 makes seasons uneven between hemispheres."
+			]
+		}
+	},
+	"jupiter": {
+		"type": "Gas giant",
+		"explorer": {
+			"summary": "Jupiter is the largest planet. It is a huge ball of gas with colorful stripes and storms.",
+			"facts": [
+				"Jupiter is more than twice as massive as all the other planets combined.",
+				"The Great Red Spot is a storm wider than Earth that has lasted for centuries.",
+				"A day on Jupiter lasts only about 10 hours."
+			]
+		},
+		"scientist": {
+			"summary": "A gas giant composed mostly of hydrogen and helium, with the strongest planetary magnetic field in the solar system. Its rapid rotation produces banded zonal winds.",
+			"facts": [
+				"Mean radius of about 11 Earth radii and a mass of about 318 Earth masses.",
+				"Sidereal rotation period of roughly 9.9 hours.",
+				"Orbital period of 11.86 years at 5.2 AU, with more than 90 known moons."
+			]
+		}
+	},
+	"saturn": {
+		"type": "Gas giant",
+		"explorer": {
+			"summary": "Saturn is famous for its bright rings, which are made of countless pieces of ice and rock.",
+			"facts": [
+				"Saturn is less dense than water, so it would float in a giant bathtub.",
+				"It has hundreds of known moons, including the large moon Titan.",
+				"The rings are wide but extremely thin."
+			]
+		},
+		"scientist": {
+			"summary": "A gas giant of hydrogen and helium with a ring system of mostly water ice. The main rings extend hundreds of thousands of kilometers but are typically only about ten meters thick.",
+			"facts": [
+				"Mean density of about 0.69 g/cm3, the lowest of any planet.",
+				"A persistent hexagonal jet stream surrounds the north pole.",
+				"Orbital period of 29.4 years and a rotation period of about 10.7 hours."
+			]
+		}
+	},
+	"uranus": {
+		"type": "Ice giant",
+		"explorer": {
+			"summary": "Uranus is a pale blue-green planet that rolls around the Sun tipped on its side.",
+			"facts": [
+				"Its axis is tilted nearly 98 degrees, so it spins on its side.",
+				"Its blue-green color comes from methane in the atmosphere.",
+				"One year on Uranus lasts about 84 Earth years."
+			]
+		},
+		"scientist": {
+			"summary": "An ice giant with a hydrogen, helium, and methane atmosphere over a mantle of water, ammonia, and methane ices. It rotates retrograde on an axis tilted about 98 degrees.",
+			"facts": [
+				"Holds the coldest recorded planetary atmosphere, with a minimum near 49 K.",
+				"Each pole spends about 21 years in continuous sunlight, then 21 years in darkness.",
+				"Sidereal rotation period of about 17.2 hours, retrograde."
+			]
+		}
+	},
+	"neptune": {
+		"type": "Ice giant",
+		"explorer": {
+			"summary": "Neptune is a deep blue planet at the edge of the solar system. It is cold, dark, and very windy.",
+			"facts": [
+				"Winds on Neptune can blow faster than 2,000 kilometers per hour.",
+				"It was found in 1846 using math before it was ever seen through a telescope.",
+				"One year on Neptune lasts about 165 Earth years."
+			]
+		},
+		"scientist": {
+			"summary": "An ice giant with an atmosphere of hydrogen, helium, and methane. It radiates more energy than it receives from the Sun and has the fastest sustained winds of any planet.",
+			"facts": [
+				"Its large moon Triton orbits retrograde and is likely a captured Kuiper belt object.",
+				"The planet completed its first full orbit since discovery in 2011.",
+				"Orbital period of about 164.8 years at 30.1 AU."
+			]
+		}
+	}
+}
