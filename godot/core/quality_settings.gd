@@ -18,6 +18,7 @@ const PROFILES := {
 		"glow": false,
 		"render_scale": 0.75,
 		"msaa": Viewport.MSAA_DISABLED,
+		"max_bodies": 32,
 	},
 	Preset.MEDIUM:
 	{
@@ -28,6 +29,7 @@ const PROFILES := {
 		"glow": true,
 		"render_scale": 1.0,
 		"msaa": Viewport.MSAA_2X,
+		"max_bodies": 64,
 	},
 	Preset.HIGH:
 	{
@@ -38,6 +40,7 @@ const PROFILES := {
 		"glow": true,
 		"render_scale": 1.0,
 		"msaa": Viewport.MSAA_4X,
+		"max_bodies": 128,
 	},
 }
 
