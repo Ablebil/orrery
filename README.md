@@ -2,12 +2,18 @@
 
 An interactive 3D solar system for exploration and gravity experiments. Built with Godot 4.7.2 and the Compatibility renderer.
 
+## Modes
+
+- **Explore** — fly through the solar system, select any body to read about it, and follow guided tours. Information is shown at two depth levels: Explorer for plain language and Scientist for full numeric data.
+- **Sandbox** — an N-body gravity simulator. Place bodies, launch them with a drag, edit or freeze them, and watch the orbits respond.
+
 ## Structure
 
 | Path | Contents |
 |---|---|
 | `docs/` | Product requirements, technical docs, final report |
 | `godot/` | Godot project |
+| `tools/` | Offline tooling, such as narration generation |
 | `assets/` | Asset license register |
 
 ## Requirements
@@ -33,6 +39,8 @@ On Linux, mark the exported file as executable with `chmod +x`.
 
 ## Controls
 
+### Both modes
+
 | Input | Action |
 |---|---|
 | W A S D, Q / E | Move, down / up |
@@ -42,11 +50,36 @@ On Linux, mark the exported file as executable with `chmod +x`.
 | Space or P | Pause |
 | R | Reverse time |
 | `[` and `]` | Slower and faster time |
-| N | Jump to the current date |
-| T | Toggle compressed and true scale |
-| 1 – 0, Tab | Focus a body, focus the next body |
+| N | Jump to the current date (resets the Sandbox) |
+| L | Toggle labels |
+| O | Toggle orbit lines |
+| M | Switch between Explorer and Scientist levels |
+| 1 – 0 | Focus a body |
 | F | Release focus into free flight |
+| F1 / F2 | Open Explore / open Sandbox |
+| F3 | Show or hide the controls help |
 | H | Hide the HUD |
+
+### Explore
+
+| Input | Action |
+|---|---|
+| Left click | Select a body and show its information |
+| Double click | Fly to a body |
+| Tab | Focus the next body |
+| T | Toggle compressed and true scale |
+| Left / Right, Enter | Previous / next tour step |
+| Esc | Exit a tour, close a menu, or clear the selection |
+
+### Sandbox
+
+| Input | Action |
+|---|---|
+| Place body, then click and drag on the orbital plane | Place a body and set its launch velocity |
+| Left click | Select a body |
+| Delete or Backspace | Remove the selected body |
+| G | Toggle the distance rings |
+| Esc | Cancel placement or clear the selection |
 
 ## Team
 
@@ -54,4 +87,4 @@ Sepak Takraw — see `docs/PRD.md`, Appendix A.
 
 ## Status
 
-Week 1 of 4: core simulation, rendering, and Explore mode foundation. See `docs/PRD.md` for the full plan.
+Week 2 of 4: Explore mode (selection, information panels, depth levels, labels, guided tours) and the Sandbox foundation (N-body engine, placement, launch, edit, remove, reset). See `docs/PRD.md` for the full plan.
