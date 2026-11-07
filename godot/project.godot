@@ -6,6 +6,11 @@ config/name="Orrery"
 config/description="Interactive 3D solar system for exploration and gravity experiments."
 config/features=PackedStringArray("4.7", "GL Compatibility")
 
+[autoload]
+
+Quality="*res://core/quality_settings.gd"
+InputBindings="*res://core/input_bindings.gd"
+
 [display]
 
 window/size/viewport_width=1280
