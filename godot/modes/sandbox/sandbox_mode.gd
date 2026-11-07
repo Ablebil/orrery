@@ -9,13 +9,14 @@ const MAX_PLANE_DISTANCE := 1.0e7
 const SPEED_LIMIT_RATIO := 0.98
 const MOON_LABEL_HIDE_DISTANCE := 40.0
 const SCREEN_MARGIN := 40.0
+const RING_LABEL_MIN_SPACING := 56.0
 const INITIAL_OFFSET := Vector3(0.0, 3.0e5, 4.0e5)
 const DEFAULT_ANCHOR_ID := "sun"
 const KM_PER_AU := 149597870.7
 const HELP_TEXT := (
 	"WASD move   Q/E down/up   Shift boost   Right mouse look   Wheel speed   Click select\n"
 	+ "Place body: click the orbital plane, drag to set velocity, release to launch   Esc cancel   Del remove\n"
-	+ "Space pause   R reverse   [ ] time speed   N reset to now   L labels   O orbit lines   1-0 focus body   F2/F1 switch mode   F3 help   H hide"
+	+ "Space pause   R reverse   [ ] time speed   N reset to now   L labels   O orbit lines   G distance rings   1-0 focus body   F2/F1 switch mode   F3 help   H hide"
 )
 
 var model: SolarSystemModel
@@ -24,6 +25,7 @@ var renderer := SandboxRenderer.new()
 var panel := SandboxPanel.new()
 
 var _labels := BodyLabels.new()
+var _rings_visible := true
 var _selected_id := ""
 var _placing := false
 var _dragging := false
@@ -99,6 +101,9 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
 		_handle_left_button(event)
+	elif event.is_action_pressed("toggle_grid"):
+		_rings_visible = not _rings_visible
+		renderer.set_rings_visible(_rings_visible)
 	elif event.is_action_pressed("cancel"):
 		_cancel()
 	elif event.is_action_pressed("delete_body"):
@@ -405,6 +410,8 @@ func _toward_light(index: int) -> Vector3:
 
 func _update_labels() -> void:
 	var entries: Array = []
+	if Preferences.labels_visible:
+		_append_ring_labels(entries)
 	if not Preferences.labels_visible and _selected_id == "":
 		_labels.set_entries(entries)
 		return
@@ -437,3 +444,19 @@ func _update_labels() -> void:
 			}
 		)
 	_labels.set_entries(entries)
+
+
+func _append_ring_labels(entries: Array) -> void:
+	var previous := Vector2(-1.0e6, -1.0e6)
+	var viewport_size := get_viewport().get_visible_rect().size
+	for ring in renderer.ring_label_entries():
+		var point: Vector3 = ring["point"]
+		if camera.is_position_behind(point):
+			continue
+		var screen := camera.unproject_position(point)
+		if screen.x < 0.0 or screen.y < 0.0 or screen.x > viewport_size.x or screen.y > viewport_size.y:
+			continue
+		if screen.distance_to(previous) < RING_LABEL_MIN_SPACING:
+			continue
+		previous = screen
+		entries.append({"name": ring["text"], "position": screen, "radius": 0.0, "labeled": true, "selected": false, "dim": true})
