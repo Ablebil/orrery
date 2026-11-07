@@ -185,6 +185,11 @@ Two models share the same body data:
   - Fixed-step simulation decoupled from frame rate, with sub-stepping at high time multipliers.
   - Default integrator: Velocity Verlet. RK4 available as an option.
   - Pairwise gravity is O(n²), which is why body count is capped per quality preset.
+  - The time step adapts to the shortest dynamical time among body pairs, so close encounters and tight orbits stay stable.
+  - Each frame has a fixed CPU budget for simulation. When the requested time speed cannot be met within the budget, the effective speed drops gracefully and the HUD reports that the simulation speed is limited. This keeps the application responsive on low-spec devices (N-05, N-08).
+  - Earth and the Moon start as two separate bodies, split about their barycenter, because the published Earth elements describe the barycenter.
+  - Orbit trails and launch references use the Hill sphere to choose the body each object orbits.
+  - Rendering uses a single linear scale of 1 render unit per 1,000 km, with a minimum angular size so small bodies remain visible, and a distance shell that keeps the depth range bounded.
 
 All orbital and physical data is embedded in `data/bodies.json`, so no network access is needed.
 
