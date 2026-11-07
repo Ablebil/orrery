@@ -105,6 +105,11 @@ func fly_to(
 	_flying = true
 
 
+func aim(direction: Vector3) -> void:
+	_cancel_flight()
+	_look_toward(direction.normalized())
+
+
 func release_anchor(current_world_position: PackedFloat64Array) -> void:
 	_cancel_flight()
 	anchor_id = ""
