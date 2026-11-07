@@ -9,14 +9,13 @@ const MAX_PLANE_DISTANCE := 1.0e7
 const SPEED_LIMIT_RATIO := 0.98
 const MOON_LABEL_HIDE_DISTANCE := 40.0
 const SCREEN_MARGIN := 40.0
-const RING_LABEL_MIN_SPACING := 56.0
 const INITIAL_OFFSET := Vector3(0.0, 3.0e5, 4.0e5)
 const DEFAULT_ANCHOR_ID := "sun"
 const KM_PER_AU := 149597870.7
 const HELP_TEXT := (
 	"WASD move   Q/E down/up   Shift boost   Right mouse look   Wheel speed   Click select\n"
 	+ "Place body: click the orbital plane, drag to set velocity, release to launch   Esc cancel   Del remove\n"
-	+ "Space pause   R reverse   [ ] time speed   N reset to now   L labels   O orbit lines   G distance rings   1-0 focus body   F2/F1 switch mode   F3 help   H hide"
+	+ "Space pause   R reverse   [ ] time speed   L labels   O orbit lines   G distance rings   1-0 focus body   F2/F1 switch mode   F3 help   H hide"
 )
 
 var model: SolarSystemModel
@@ -25,7 +24,6 @@ var renderer := SandboxRenderer.new()
 var panel := SandboxPanel.new()
 
 var _labels := BodyLabels.new()
-var _rings_visible := true
 var _selected_id := ""
 var _placing := false
 var _dragging := false
@@ -36,6 +34,7 @@ var _info_timer := 0.0
 var _press_position := Vector2.ZERO
 var _speed_limited := false
 var _spawn_counter := 0
+var _launch_status := ""
 var _focus_actions: Array[StringName] = []
 
 
@@ -48,7 +47,8 @@ func _build_world() -> void:
 	hud.left_column.add_child(panel)
 	hud.set_help(HELP_TEXT)
 	hud.set_mode_switch("Open Explore (F1)")
-	hud.set_help_visible(false)
+	hud.set_now_visible(false)
+	hud.set_depth_visible(false)
 	for index in 10:
 		_focus_actions.append(StringName("focus_body_%d" % index))
 	panel.place_toggled.connect(_set_placing)
@@ -69,10 +69,12 @@ func _is_explore() -> bool:
 	return false
 
 
+func _allows_time_jump() -> bool:
+	return false
+
+
 func _process(delta: float) -> void:
 	_frame += 1
-	if absf(clock.seconds - world.seconds) > 1.0:
-		_reset_world(clock.seconds)
 	var requested := 0.0 if clock.paused else clock.effective_speed() * delta
 	var advanced := world.advance(requested, TIME_BUDGET_USEC)
 	clock.seconds = world.seconds
@@ -101,9 +103,6 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
 		_handle_left_button(event)
-	elif event.is_action_pressed("toggle_grid"):
-		_rings_visible = not _rings_visible
-		renderer.set_rings_visible(_rings_visible)
 	elif event.is_action_pressed("cancel"):
 		_cancel()
 	elif event.is_action_pressed("delete_body"):
@@ -125,6 +124,7 @@ func _on_quality_changed() -> void:
 
 func _on_preferences_changed() -> void:
 	renderer.set_trails_visible(Preferences.trails_visible)
+	renderer.set_rings_visible(Preferences.rings_visible)
 
 
 func _handle_left_button(event: InputEventMouseButton) -> void:
@@ -165,8 +165,10 @@ func _status_text() -> String:
 	var focus := "Free flight"
 	if camera.anchor_id != "" and world.index_of(camera.anchor_id) >= 0:
 		focus = world.bodies[world.index_of(camera.anchor_id)].display_name
-	var text := "Focus: " + focus + "   (F3 controls)"
-	if _placing:
+	var text := "Focus: " + focus
+	if _dragging and _launch_status != "":
+		text += "   |   " + _launch_status
+	elif _placing:
 		text += "   |   Placing a body"
 	if _speed_limited:
 		text += "   |   Simulation speed limited by performance"
@@ -326,8 +328,10 @@ func _update_preview() -> void:
 	renderer.set_preview(true, _drag_origin, _drag_tip, spec["radius_km"])
 	var launch := _launch(_drag_origin, _drag_tip, spec["mass_kg"])
 	if launch["reference"] == "":
+		_launch_status = "No body to orbit nearby"
 		panel.set_launch_text("No body to orbit. Add or keep a massive body nearby.")
 		return
+	_launch_status = "Launch %.2f km/s relative to %s (%.2f x circular)" % [launch["speed"], launch["reference"], launch["ratio"]]
 	panel.set_launch_text(
 		"Launch speed relative to %s: %.2f km/s (%.2f x circular orbit speed)"
 		% [launch["reference"], launch["speed"], launch["ratio"]]
@@ -411,7 +415,7 @@ func _toward_light(index: int) -> Vector3:
 func _update_labels() -> void:
 	var entries: Array = []
 	if Preferences.labels_visible:
-		_append_ring_labels(entries)
+		append_ring_labels(entries, renderer.ring_label_entries())
 	if not Preferences.labels_visible and _selected_id == "":
 		_labels.set_entries(entries)
 		return
@@ -446,17 +450,3 @@ func _update_labels() -> void:
 	_labels.set_entries(entries)
 
 
-func _append_ring_labels(entries: Array) -> void:
-	var previous := Vector2(-1.0e6, -1.0e6)
-	var viewport_size := get_viewport().get_visible_rect().size
-	for ring in renderer.ring_label_entries():
-		var point: Vector3 = ring["point"]
-		if camera.is_position_behind(point):
-			continue
-		var screen := camera.unproject_position(point)
-		if screen.x < 0.0 or screen.y < 0.0 or screen.x > viewport_size.x or screen.y > viewport_size.y:
-			continue
-		if screen.distance_to(previous) < RING_LABEL_MIN_SPACING:
-			continue
-		previous = screen
-		entries.append({"name": ring["text"], "position": screen, "radius": 0.0, "labeled": true, "selected": false, "dim": true})
