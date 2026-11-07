@@ -10,6 +10,7 @@ config/features=PackedStringArray("4.7", "GL Compatibility")
 [autoload]
 
 Quality="*res://core/quality_settings.gd"
+Preferences="*res://core/preferences.gd"
 InputBindings="*res://core/input_bindings.gd"
 
 [display]
