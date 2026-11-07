@@ -4,7 +4,7 @@ extends RefCounted
 signal bodies_changed
 
 const VELOCITY_SAMPLE_SECONDS := 1800.0
-const PARENT_SWITCH_RATIO := 1.5
+const HILL_HYSTERESIS := 1.3
 
 var simulation := NBodySimulation.new()
 var bodies: Array[SandboxBody] = []
@@ -121,45 +121,51 @@ func remove_body(id: String) -> void:
 	bodies_changed.emit()
 
 
-func dominant_attractor(index: int, from_position: DVec3) -> int:
-	var best := -1
-	var best_pull := 0.0
+func reference_body(position: DVec3, own_gm: float, exclude: int) -> int:
+	var primary := -1
+	var primary_gm := 0.0
 	for other in bodies.size():
-		if other == index:
+		if other != exclude and simulation.gm[other] > primary_gm:
+			primary_gm = simulation.gm[other]
+			primary = other
+	if primary < 0 or primary_gm <= own_gm:
+		return -1
+	var primary_position := simulation.position_of(primary)
+	var best := primary
+	var best_hill := INF
+	for other in bodies.size():
+		if other == exclude or other == primary or simulation.gm[other] <= own_gm:
 			continue
-		var offset := simulation.position_of(other).minus(from_position)
-		var distance_squared := maxf(offset.x * offset.x + offset.y * offset.y + offset.z * offset.z, 1.0)
-		var pull := simulation.gm[other] / distance_squared
-		if pull > best_pull:
-			best_pull = pull
+		var other_position := simulation.position_of(other)
+		var hill := other_position.minus(primary_position).length() * pow(simulation.gm[other] / (3.0 * primary_gm), 1.0 / 3.0)
+		if hill < best_hill and other_position.minus(position).length() < hill:
 			best = other
+			best_hill = hill
 	return best
 
 
 func assign_parent(index: int) -> void:
-	var candidate := _heaviest_attractor(index)
+	var candidate := reference_body(simulation.position_of(index), simulation.gm[index], index)
 	if candidate < 0:
 		bodies[index].parent_id = ""
 		return
 	var current := index_of(bodies[index].parent_id)
-	if current < 0 or _pull(index, candidate) > PARENT_SWITCH_RATIO * _pull(index, current):
-		bodies[index].parent_id = bodies[candidate].id
+	if current >= 0 and current != candidate and _still_bound(index, current):
+		return
+	bodies[index].parent_id = bodies[candidate].id
 
 
-func _heaviest_attractor(index: int) -> int:
-	var best := -1
-	var best_pull := 0.0
+func _still_bound(index: int, parent: int) -> bool:
+	var primary := -1
+	var primary_gm := 0.0
 	for other in bodies.size():
-		if other == index or simulation.gm[other] <= simulation.gm[index]:
-			continue
-		var pull := _pull(index, other)
-		if pull > best_pull:
-			best_pull = pull
-			best = other
-	return best
-
-
-func _pull(index: int, other: int) -> float:
-	var offset := simulation.position_of(other).minus(simulation.position_of(index))
-	var distance_squared := maxf(offset.x * offset.x + offset.y * offset.y + offset.z * offset.z, 1.0)
-	return simulation.gm[other] / distance_squared
+		if other != index and simulation.gm[other] > primary_gm:
+			primary_gm = simulation.gm[other]
+			primary = other
+	if parent == primary:
+		return false
+	if simulation.gm[parent] <= simulation.gm[index]:
+		return false
+	var parent_position := simulation.position_of(parent)
+	var hill := parent_position.minus(simulation.position_of(primary)).length() * pow(simulation.gm[parent] / (3.0 * primary_gm), 1.0 / 3.0)
+	return parent_position.minus(simulation.position_of(index)).length() < HILL_HYSTERESIS * hill
