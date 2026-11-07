@@ -10,3 +10,7 @@ desktop.ini
 .vscode/
 .idea/
 *.swp
+tools/**/.venv/
+tools/**/models/
+__pycache__/
+*.pyc
