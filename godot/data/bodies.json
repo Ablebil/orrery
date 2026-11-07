@@ -113,6 +113,7 @@
 			"rates": [-0.00125060, -0.00050991, 0.00193609, 1222.49362201, -0.41897216, -0.28867794]
 		},
 		"rotation": {"obliquity_deg": 26.73, "pole_ra_deg": 40.589, "pole_dec_deg": 83.537, "prime_meridian_deg": 38.90, "rate_deg_per_day": 810.7939024},
+		"rings": {"inner_km": 74500.0, "outer_km": 140220.0, "texture": "res://assets/textures/bodies/saturn_ring.png"},
 		"texture": "res://assets/textures/bodies/saturn.jpg",
 		"color": "#E8D08B"
 	},

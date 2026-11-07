@@ -290,6 +290,9 @@ func _sync_bodies() -> void:
 			continue
 		var visual := BodyVisual.new(body.texture_path, body.night_texture_path, body.emissive, _tint_for(body))
 		visual.set_mesh_detail(profile["sphere_radial_segments"], profile["sphere_rings"])
+		var definition := body.definition
+		if definition != null and definition.ring_texture_path != "":
+			visual.add_rings(definition.ring_inner_km / definition.radius_km, definition.ring_outer_km / definition.radius_km, definition.ring_texture_path)
 		add_child(visual)
 		_visuals[body.id] = visual
 		var trail := SandboxTrail.new(body.color)
