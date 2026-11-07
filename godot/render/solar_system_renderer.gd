@@ -95,7 +95,7 @@ func update(camera_position: PackedFloat64Array, simulation_seconds: float) -> v
 		visual.place(
 			Vector3(rx, ry, rz) * shrink,
 			mapper.radius(body) * shrink,
-			body.spin_angle(simulation_seconds),
+			body.orientation(simulation_seconds),
 			sun_direction.normalized()
 		)
 		if _trails.has(body.id):

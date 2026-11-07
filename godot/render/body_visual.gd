@@ -8,14 +8,10 @@ var definition: BodyDefinition
 
 var _mesh_instance := MeshInstance3D.new()
 var _material := ShaderMaterial.new()
-var _pole: Vector3
-var _alignment: Basis
 
 
 func _init(body: BodyDefinition) -> void:
 	definition = body
-	_pole = body.pole_direction()
-	_alignment = Basis(Quaternion(Vector3.UP, _pole))
 	_material.shader = SUN_SHADER if body.emissive else SURFACE_SHADER
 	_material.set_shader_parameter("albedo_texture", load(body.texture_path))
 	if body.night_texture_path != "":
@@ -35,8 +31,7 @@ func set_mesh_detail(radial_segments: int, rings: int) -> void:
 	_mesh_instance.mesh = sphere
 
 
-func place(camera_relative_position: Vector3, radius: float, spin: float, sun_direction: Vector3) -> void:
-	var orientation := Basis(_pole, spin) * _alignment
+func place(camera_relative_position: Vector3, radius: float, orientation: Basis, sun_direction: Vector3) -> void:
 	transform = Transform3D(orientation.scaled(Vector3.ONE * radius), camera_relative_position)
 	if not definition.emissive:
 		_material.set_shader_parameter("sun_direction", sun_direction)

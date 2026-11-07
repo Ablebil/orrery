@@ -1,6 +1,10 @@
 class_name BodyDefinition
 extends RefCounted
 
+const SPHERE_TO_BODY := Basis(Vector3(0, -1, 0), Vector3(0, 0, 1), Vector3(-1, 0, 0))
+
+static var _equatorial_to_render: Basis = _build_equatorial_to_render()
+
 var id: String
 var display_name: String
 var kind: String
@@ -40,13 +44,24 @@ static func from_dictionary(data: Dictionary) -> BodyDefinition:
 	return body
 
 
-func pole_direction() -> Vector3:
-	var ra := deg_to_rad(pole_right_ascension_deg)
-	var dec := deg_to_rad(pole_declination_deg)
-	var ecliptic := Astro.equatorial_to_ecliptic(cos(dec) * cos(ra), cos(dec) * sin(ra), sin(dec))
-	return Vector3(ecliptic[0], ecliptic[2], -ecliptic[1]).normalized()
-
-
 func spin_angle(simulation_seconds: float) -> float:
 	var days := simulation_seconds / Astro.SECONDS_PER_DAY
 	return deg_to_rad(fposmod(prime_meridian_deg + rotation_rate_deg_per_day * days, 360.0))
+
+
+func orientation(simulation_seconds: float) -> Basis:
+	var node_angle := deg_to_rad(pole_right_ascension_deg + 90.0)
+	var tilt_angle := deg_to_rad(90.0 - pole_declination_deg)
+	var equatorial := (
+		Basis(Vector3.BACK, node_angle) * Basis(Vector3.RIGHT, tilt_angle) * Basis(Vector3.BACK, spin_angle(simulation_seconds))
+	)
+	return _equatorial_to_render * equatorial * SPHERE_TO_BODY
+
+
+static func _build_equatorial_to_render() -> Basis:
+	return Basis(_render_axis(1.0, 0.0, 0.0), _render_axis(0.0, 1.0, 0.0), _render_axis(0.0, 0.0, 1.0))
+
+
+static func _render_axis(x: float, y: float, z: float) -> Vector3:
+	var ecliptic := Astro.equatorial_to_ecliptic(x, y, z)
+	return Vector3(ecliptic[0], ecliptic[2], -ecliptic[1])
