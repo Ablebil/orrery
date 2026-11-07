@@ -27,7 +27,7 @@ var _scratch := PackedFloat64Array([0.0, 0.0, 0.0])
 func setup(model: SolarSystemModel) -> void:
 	_model = model
 	for body in _model.bodies:
-		var visual := BodyVisual.new(body)
+		var visual := BodyVisual.new(body.texture_path, body.night_texture_path, body.emissive)
 		add_child(visual)
 		_visuals[body.id] = visual
 		if body.orbit != null:
