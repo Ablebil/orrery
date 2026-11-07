@@ -17,6 +17,15 @@ const KEY_ACTIONS := {
 	"focus_next": [KEY_TAB],
 	"focus_release": [KEY_F],
 	"toggle_hud": [KEY_H],
+	"toggle_labels": [KEY_L],
+	"toggle_trails": [KEY_O],
+	"toggle_level": [KEY_M],
+	"tour_next": [KEY_RIGHT, KEY_ENTER],
+	"tour_previous": [KEY_LEFT],
+	"cancel": [KEY_ESCAPE],
+	"mode_explore": [KEY_F1],
+	"mode_sandbox": [KEY_F2],
+	"delete_body": [KEY_DELETE, KEY_BACKSPACE],
 }
 
 const FOCUS_KEYS: Array[Key] = [KEY_1, KEY_2, KEY_3, KEY_4, KEY_5, KEY_6, KEY_7, KEY_8, KEY_9, KEY_0]
