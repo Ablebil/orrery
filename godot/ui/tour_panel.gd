@@ -5,49 +5,60 @@ signal previous_pressed
 signal next_pressed
 signal exit_pressed
 
-const PANEL_WIDTH := 600
-const DIM_COLOR := Color(1, 1, 1, 0.6)
+const PANEL_WIDTH := 620
+const CONTENT_WIDTH := 590
 
-var _tour_title := Label.new()
-var _counter := Label.new()
+var _tour_title: Label
+var _counter: Label
 var _step_title := Label.new()
-var _text := Label.new()
+var _text: Label
+var _progress := ProgressBar.new()
 var _previous_button: Button
 var _next_button: Button
 
 
 func _init() -> void:
-	Hud.style_panel(self)
 	custom_minimum_size = Vector2(PANEL_WIDTH, 0)
 	visible = false
 	var box := VBoxContainer.new()
 	add_child(box)
 	var header := HBoxContainer.new()
 	box.add_child(header)
-	_tour_title.modulate = DIM_COLOR
+	_tour_title = Hud.section_label("")
 	_tour_title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	header.add_child(_tour_title)
-	_counter.modulate = DIM_COLOR
+	_counter = Hud.make_label("", "DimLabel")
 	header.add_child(_counter)
-	_step_title.add_theme_font_size_override("font_size", 22)
+	_progress.show_percentage = false
+	_progress.custom_minimum_size = Vector2(0, 3)
+	_progress.add_theme_stylebox_override("background", OrreryTheme.box(Color(1, 1, 1, 0.08), 2, 0.0, 0.0))
+	_progress.add_theme_stylebox_override("fill", OrreryTheme.box(OrreryTheme.ACCENT, 2, 0.0, 0.0))
+	box.add_child(_progress)
+	_step_title.theme_type_variation = "TitleLabel"
 	box.add_child(_step_title)
-	_text.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_text.custom_minimum_size = Vector2(PANEL_WIDTH - 24, 0)
+	_text = Hud.make_wrapped_label("", CONTENT_WIDTH)
 	box.add_child(_text)
 	var buttons := HBoxContainer.new()
 	buttons.alignment = BoxContainer.ALIGNMENT_END
 	box.add_child(buttons)
-	_previous_button = Hud.make_button("Previous", func() -> void: previous_pressed.emit())
-	_next_button = Hud.make_button("Next", func() -> void: next_pressed.emit())
+	var exit := Hud.make_button("Exit tour", func() -> void: exit_pressed.emit(), "Leave the tour (Esc)")
+	exit.theme_type_variation = "FlatButton"
+	buttons.add_child(exit)
+	var spacer := Control.new()
+	spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	buttons.add_child(spacer)
+	_previous_button = Hud.make_button("Previous", func() -> void: previous_pressed.emit(), "Previous step (Left)")
+	_next_button = Hud.make_accent_button("Next", func() -> void: next_pressed.emit(), "Next step (Right or Enter)")
 	buttons.add_child(_previous_button)
 	buttons.add_child(_next_button)
-	buttons.add_child(Hud.make_button("Exit", func() -> void: exit_pressed.emit()))
 
 
 func show_step(tour_title: String, step: Dictionary, index: int, count: int) -> void:
 	visible = true
-	_tour_title.text = tour_title
-	_counter.text = "%d / %d" % [index + 1, count]
+	_tour_title.text = tour_title.to_upper()
+	_counter.text = "Step %d of %d" % [index + 1, count]
+	_progress.max_value = count
+	_progress.value = index + 1
 	_step_title.text = step["title"]
 	_text.text = _text_for(step)
 	_previous_button.disabled = index == 0
