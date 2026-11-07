@@ -9,6 +9,7 @@ const GLOW_THRESHOLD := 0.3
 const EXPLORE_SCENE := "res://modes/explore/explore_mode.tscn"
 const SANDBOX_SCENE := "res://modes/sandbox/sandbox_mode.tscn"
 const PICK_TOLERANCE_PIXELS := 16.0
+const RING_LABEL_MIN_SPACING := 56.0
 
 var clock := SimulationClock.new()
 var camera := CameraRig.new()
@@ -45,7 +46,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		clock.faster()
 	elif event.is_action_pressed("time_slower"):
 		clock.slower()
-	elif event.is_action_pressed("time_now"):
+	elif event.is_action_pressed("time_now") and _allows_time_jump():
 		clock.jump_to_now()
 	elif event.is_action_pressed("toggle_hud"):
 		hud.toggle_visibility()
@@ -55,6 +56,8 @@ func _unhandled_input(event: InputEvent) -> void:
 		Preferences.set_labels_visible(not Preferences.labels_visible)
 	elif event.is_action_pressed("toggle_trails"):
 		Preferences.set_trails_visible(not Preferences.trails_visible)
+	elif event.is_action_pressed("toggle_grid"):
+		Preferences.set_rings_visible(not Preferences.rings_visible)
 	elif event.is_action_pressed("toggle_level"):
 		var next := Preferences.DepthLevel.EXPLORER if Preferences.is_scientist() else Preferences.DepthLevel.SCIENTIST
 		Preferences.set_depth_level(next)
@@ -72,8 +75,28 @@ func pixels_per_radian() -> float:
 	return get_viewport().get_visible_rect().size.y / deg_to_rad(camera.fov)
 
 
+func append_ring_labels(entries: Array, rings: Array) -> void:
+	var viewport_size := get_viewport().get_visible_rect().size
+	var previous := Vector2(-1.0e6, -1.0e6)
+	for ring in rings:
+		var point: Vector3 = ring["point"]
+		if camera.is_position_behind(point):
+			continue
+		var screen := camera.unproject_position(point)
+		if screen.x < 0.0 or screen.y < 0.0 or screen.x > viewport_size.x or screen.y > viewport_size.y:
+			continue
+		if screen.distance_to(previous) < RING_LABEL_MIN_SPACING:
+			continue
+		previous = screen
+		entries.append({"name": ring["text"], "position": screen, "radius": 0.0, "labeled": true, "selected": false, "dim": true})
+
+
 func _build_world() -> void:
 	pass
+
+
+func _allows_time_jump() -> bool:
+	return true
 
 
 func _is_explore() -> bool:
