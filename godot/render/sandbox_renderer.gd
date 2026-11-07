@@ -26,6 +26,9 @@ var _camera_relative: Dictionary = {}
 var _camera_radius: Dictionary = {}
 var _camera_true_radius: Dictionary = {}
 var _trails_visible := true
+var _last_camera_position := PackedFloat64Array([0.0, 0.0, 0.0])
+var _last_shell := 1.0
+var _rings := ReferenceRings.new()
 var _preview_active := false
 var _preview_origin := DVec3.new()
 var _preview_tip := DVec3.new()
@@ -51,6 +54,7 @@ func _ready() -> void:
 	_preview_marker.visible = false
 	_preview_line.mesh = _preview_mesh
 	_preview_line.visible = false
+	add_child(_rings)
 	add_child(_preview_marker)
 	add_child(_preview_line)
 
@@ -171,7 +175,10 @@ func update(camera_position: PackedFloat64Array) -> void:
 			var halo: MeshInstance3D = _halos[body.id]
 			halo.transform = Transform3D(Basis.from_scale(Vector3.ONE * placed_radius * HALO_RADIUS_FACTOR), placed_position)
 		_update_trail(index, camera_position, shell)
+	_rings.update(camera_position, shell)
 	_update_preview(camera_position, shell)
+	_last_camera_position = camera_position
+	_last_shell = shell
 
 
 func is_occluded(id: String) -> bool:
@@ -350,3 +357,13 @@ func _to_camera_relative(position_km: DVec3, camera_position: PackedFloat64Array
 		position_km.z / UNIT_KM - camera_position[1],
 		-position_km.y / UNIT_KM - camera_position[2]
 	)
+
+
+func set_rings_visible(value: bool) -> void:
+	_rings.visible = value
+
+
+func ring_label_entries() -> Array:
+	if not _rings.visible:
+		return []
+	return _rings.label_entries(_last_camera_position, _last_shell)

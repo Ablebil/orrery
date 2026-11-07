@@ -18,6 +18,7 @@ const KEY_ACTIONS := {
 	"focus_release": [KEY_F],
 	"toggle_hud": [KEY_H],
 	"toggle_help": [KEY_F3],
+	"toggle_grid": [KEY_G],
 	"toggle_labels": [KEY_L],
 	"toggle_trails": [KEY_O],
 	"toggle_level": [KEY_M],
