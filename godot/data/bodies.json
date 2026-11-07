@@ -82,7 +82,7 @@
 			"elements": [1.52371034, 0.09339410, 1.84969142, -4.55343205, -23.94362959, 49.55953891],
 			"rates": [0.00001847, 0.00007882, -0.00813131, 19140.30268499, 0.44441088, -0.29257343]
 		},
-		"rotation": {"pole_ra_deg": 317.68143, "pole_dec_deg": 52.8865, "prime_meridian_deg": 176.630, "rate_deg_per_day": 350.89198226},
+		"rotation": {"pole_ra_deg": 317.269202, "pole_dec_deg": 54.432516, "prime_meridian_deg": 176.049863, "rate_deg_per_day": 350.891982443297},
 		"texture": "res://assets/textures/bodies/mars.jpg",
 		"color": "#E2653D"
 	},
@@ -142,7 +142,7 @@
 			"elements": [30.06992276, 0.00859048, 1.77004347, -55.12002969, 44.96476227, 131.78422574],
 			"rates": [0.00026291, 0.00005105, 0.00035372, 218.45945325, -0.32241464, -0.00508664]
 		},
-		"rotation": {"pole_ra_deg": 299.36, "pole_dec_deg": 43.46, "prime_meridian_deg": 253.18, "rate_deg_per_day": 536.3128492},
+		"rotation": {"pole_ra_deg": 299.36, "pole_dec_deg": 43.46, "prime_meridian_deg": 249.978, "rate_deg_per_day": 541.1397757},
 		"texture": "res://assets/textures/bodies/neptune.jpg",
 		"color": "#4A6BFF"
 	}
