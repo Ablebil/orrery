@@ -8,6 +8,12 @@ Every third-party asset bundled with Orrery is recorded here and surfaced in the
 | Saturn ring alpha texture (2K) | Texture | Solar System Scope | https://www.solarsystemscope.com/textures/ | CC BY 4.0 | 2026-11-08 | Attribution required |
 | Stars and Milky Way panorama (2K) | Texture | Solar System Scope | https://www.solarsystemscope.com/textures/ | CC BY 4.0 | 2026-11-08 | Attribution required |
 
+## Generated Assets
+
+| Asset | Tool | Model and License | Voice | Notes |
+|---|---|---|---|---|
+| Narration voice-over (`godot/assets/audio/narration/`) | kokoro-onnx (MIT) | Kokoro-82M v1.0, Apache-2.0, https://huggingface.co/hexgrad/Kokoro-82M | `af_bella` | Synthetic speech generated offline during development. The in-app credits must state that the narration is synthesized |
+
 ## Data Sources
 
 | Data | Source | Notes |
