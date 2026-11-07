@@ -50,10 +50,8 @@ On Linux, mark the exported file as executable with `chmod +x`.
 | Space or P | Pause |
 | R | Reverse time |
 | `[` and `]` | Slower and faster time |
-| N | Jump to the current date (resets the Sandbox) |
-| L | Toggle labels |
-| O | Toggle orbit lines |
-| M | Switch between Explorer and Scientist levels |
+| L, O, G | Toggle labels, orbit lines, and distance rings |
+| M | Switch between Explorer and Scientist levels (Explore) |
 | 1 – 0 | Focus a body |
 | F | Release focus into free flight |
 | F1 / F2 | Open Explore / open Sandbox |
@@ -68,6 +66,7 @@ On Linux, mark the exported file as executable with `chmod +x`.
 | Double click | Fly to a body |
 | Tab | Focus the next body |
 | T | Toggle compressed and true scale |
+| N | Jump to the current date |
 | Left / Right, Enter | Previous / next tour step |
 | Esc | Exit a tour, close a menu, or clear the selection |
 
@@ -78,7 +77,6 @@ On Linux, mark the exported file as executable with `chmod +x`.
 | Place body, then click and drag on the orbital plane | Place a body and set its launch velocity |
 | Left click | Select a body |
 | Delete or Backspace | Remove the selected body |
-| G | Toggle the distance rings |
 | Esc | Cancel placement or clear the selection |
 
 ## Team
@@ -87,4 +85,4 @@ Sepak Takraw — see `docs/PRD.md`, Appendix A.
 
 ## Status
 
-Week 2 of 4: Explore mode (selection, information panels, depth levels, labels, guided tours) and the Sandbox foundation (N-body engine, placement, launch, edit, remove, reset). See `docs/PRD.md` for the full plan.
+Weeks 1 and 2 of 4 are complete: core simulation and rendering, Explore mode with information panels, depth levels, labels, distance rings, and guided tours, and the Sandbox with an N-body engine, placement, launch, edit, remove, and reset. See `docs/PRD.md` for the full plan.
