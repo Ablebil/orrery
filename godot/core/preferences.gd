@@ -11,6 +11,7 @@ const DEPTH_NAMES: Array[String] = ["Explorer", "Scientist"]
 var depth_level: DepthLevel = DepthLevel.EXPLORER
 var labels_visible := true
 var trails_visible := true
+var rings_visible := true
 
 
 func _ready() -> void:
@@ -45,6 +46,14 @@ func set_trails_visible(value: bool) -> void:
 	changed.emit()
 
 
+func set_rings_visible(value: bool) -> void:
+	if value == rings_visible:
+		return
+	rings_visible = value
+	_save()
+	changed.emit()
+
+
 func _load() -> void:
 	var config := ConfigFile.new()
 	if config.load(CONFIG_PATH) != OK:
@@ -53,6 +62,7 @@ func _load() -> void:
 	depth_level = clampi(stored_level, DepthLevel.EXPLORER, DepthLevel.SCIENTIST) as DepthLevel
 	labels_visible = config.get_value(CONFIG_SECTION, "labels_visible", true)
 	trails_visible = config.get_value(CONFIG_SECTION, "trails_visible", true)
+	rings_visible = config.get_value(CONFIG_SECTION, "rings_visible", true)
 
 
 func _save() -> void:
@@ -61,4 +71,5 @@ func _save() -> void:
 	config.set_value(CONFIG_SECTION, "depth_level", depth_level)
 	config.set_value(CONFIG_SECTION, "labels_visible", labels_visible)
 	config.set_value(CONFIG_SECTION, "trails_visible", trails_visible)
+	config.set_value(CONFIG_SECTION, "rings_visible", rings_visible)
 	config.save(CONFIG_PATH)
