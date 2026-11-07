@@ -34,8 +34,14 @@ func offset_to_render(
 	out[2] = -oy * factor
 
 
+func heliocentric_units(distance_km: float) -> float:
+	if mode == Mode.TRUE_SCALE:
+		return distance_km / TRUE_SCALE_UNIT_KM
+	return PLANET_ORBIT_BASE + PLANET_ORBIT_FACTOR * pow(distance_km / Astro.AU_KM, PLANET_ORBIT_EXPONENT)
+
+
 func _compressed_distance(body: BodyDefinition, parent: BodyDefinition, distance_km: float) -> float:
 	if parent.kind == "star":
-		return PLANET_ORBIT_BASE + PLANET_ORBIT_FACTOR * pow(distance_km / Astro.AU_KM, PLANET_ORBIT_EXPONENT)
+		return heliocentric_units(distance_km)
 	var ratio := maxf(distance_km / parent.radius_km, 1.0)
 	return radius(parent) + MOON_ORBIT_GAP + MOON_ORBIT_SPREAD * log(ratio) / log(10.0)

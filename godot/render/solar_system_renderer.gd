@@ -21,6 +21,8 @@ var _render_positions: Dictionary = {}
 var _camera_relative: Dictionary = {}
 var _camera_radius: Dictionary = {}
 var _halo := MeshInstance3D.new()
+var _rings := ReferenceRings.new()
+var _ring_radii: Array[float] = []
 var _scratch := PackedFloat64Array([0.0, 0.0, 0.0])
 
 
@@ -35,6 +37,7 @@ func setup(model: SolarSystemModel) -> void:
 			add_child(trail)
 			_trails[body.id] = trail
 	_build_halo()
+	add_child(_rings)
 	apply_quality()
 
 
@@ -70,6 +73,14 @@ func camera_relative_position(id: String) -> Vector3:
 
 func camera_relative_radius(id: String) -> float:
 	return _camera_radius.get(id, 0.0)
+
+
+func set_rings_visible(value: bool) -> void:
+	_rings.visible = value
+
+
+func ring_label_entries() -> Array:
+	return _rings.label_entries()
 
 
 func set_trails_visible(value: bool) -> void:
@@ -149,6 +160,7 @@ func update(camera_position: PackedFloat64Array, simulation_seconds: float) -> v
 		if _trails.has(body.id):
 			_update_trail(body, camera_position, simulation_seconds, shell)
 	_place_halo(camera_position, sun_position, shell)
+	_update_rings(camera_position, sun_position, shell)
 
 
 func _shell_shrink(distance: float, shell: float) -> float:
@@ -200,3 +212,10 @@ func _place_halo(camera_position: PackedFloat64Array, sun_position: PackedFloat6
 	var shrink := _shell_shrink(offset.length(), shell)
 	var scale := mapper.radius(sun) * HALO_RADIUS_FACTOR * shrink
 	_halo.transform = Transform3D(Basis.from_scale(Vector3.ONE * scale), offset * shrink)
+
+
+func _update_rings(camera_position: PackedFloat64Array, sun_position: PackedFloat64Array, shell: float) -> void:
+	_ring_radii.clear()
+	for radius_au in ReferenceRings.RING_RADII_AU:
+		_ring_radii.append(mapper.heliocentric_units(radius_au * Astro.AU_KM))
+	_rings.update(camera_position, shell, sun_position, _ring_radii)

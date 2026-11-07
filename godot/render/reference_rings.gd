@@ -7,6 +7,7 @@ const RING_COLOR := Color(0.6, 0.75, 1.0, 0.2)
 
 var _mesh := ImmediateMesh.new()
 var _material := StandardMaterial3D.new()
+var _labels: Array = []
 
 
 func _init() -> void:
@@ -17,34 +18,31 @@ func _init() -> void:
 	_material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 
 
-func update(camera_position: PackedFloat64Array, shell: float) -> void:
+func update(camera_position: PackedFloat64Array, shell: float, center: PackedFloat64Array, radii: Array[float]) -> void:
 	_mesh.clear_surfaces()
+	_labels.clear()
 	if not visible:
 		return
-	for radius_au in RING_RADII_AU:
-		var radius := _radius_units(radius_au)
+	var offset := PackedFloat64Array(
+		[center[0] - camera_position[0], center[1] - camera_position[1], center[2] - camera_position[2]]
+	)
+	for ring in radii.size():
+		var radius := radii[ring]
 		_mesh.surface_begin(Mesh.PRIMITIVE_LINE_STRIP, _material)
 		for index in SEGMENTS + 1:
 			var angle := TAU * float(index) / float(SEGMENTS)
 			_mesh.surface_set_color(RING_COLOR)
-			_mesh.surface_add_vertex(_vertex(cos(angle) * radius, sin(angle) * radius, camera_position, shell))
+			_mesh.surface_add_vertex(_vertex(offset, cos(angle) * radius, sin(angle) * radius, shell))
 		_mesh.surface_end()
+		_labels.append({"text": _label_text(RING_RADII_AU[ring]), "point": _vertex(offset, radius, 0.0, shell)})
 
 
-func label_entries(camera_position: PackedFloat64Array, shell: float) -> Array:
-	var entries: Array = []
-	for radius_au in RING_RADII_AU:
-		var point := _vertex(_radius_units(radius_au), 0.0, camera_position, shell)
-		entries.append({"text": _label_text(radius_au), "point": point})
-	return entries
+func label_entries() -> Array:
+	return _labels if visible else []
 
 
-func _radius_units(radius_au: float) -> float:
-	return radius_au * Astro.AU_KM / SandboxRenderer.UNIT_KM
-
-
-func _vertex(x: float, z: float, camera_position: PackedFloat64Array, shell: float) -> Vector3:
-	var vertex := Vector3(x - camera_position[0], -camera_position[1], z - camera_position[2])
+func _vertex(offset: PackedFloat64Array, x: float, z: float, shell: float) -> Vector3:
+	var vertex := Vector3(offset[0] + x, offset[1], offset[2] + z)
 	var distance := vertex.length()
 	if distance > shell:
 		vertex *= shell / distance
