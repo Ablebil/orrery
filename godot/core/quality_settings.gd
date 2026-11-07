@@ -70,5 +70,6 @@ func _load() -> void:
 
 func _save() -> void:
 	var config := ConfigFile.new()
+	config.load(CONFIG_PATH)
 	config.set_value(CONFIG_SECTION, "preset", preset)
 	config.save(CONFIG_PATH)
