@@ -5,7 +5,7 @@
 		"kind": "star",
 		"mass_kg": 1.98847e30,
 		"radius_km": 695700.0,
-		"rotation": {"pole_ra_deg": 286.13, "pole_dec_deg": 63.87, "prime_meridian_deg": 84.176, "rate_deg_per_day": 14.1844},
+		"rotation": {"obliquity_deg": 7.25, "pole_ra_deg": 286.13, "pole_dec_deg": 63.87, "prime_meridian_deg": 84.176, "rate_deg_per_day": 14.1844},
 		"texture": "res://assets/textures/bodies/sun.jpg",
 		"color": "#FFD27D",
 		"emissive": true
@@ -21,7 +21,7 @@
 			"elements": [0.38709927, 0.20563593, 7.00497902, 252.25032350, 77.45779628, 48.33076593],
 			"rates": [0.00000037, 0.00001906, -0.00594749, 149472.67411175, 0.16047689, -0.12534081]
 		},
-		"rotation": {"pole_ra_deg": 281.0103, "pole_dec_deg": 61.4155, "prime_meridian_deg": 329.5988, "rate_deg_per_day": 6.1385108},
+		"rotation": {"obliquity_deg": 0.034, "pole_ra_deg": 281.0103, "pole_dec_deg": 61.4155, "prime_meridian_deg": 329.5988, "rate_deg_per_day": 6.1385108},
 		"texture": "res://assets/textures/bodies/mercury.jpg",
 		"color": "#B5B5B5"
 	},
@@ -36,7 +36,7 @@
 			"elements": [0.72333566, 0.00677672, 3.39467605, 181.97909950, 131.60246718, 76.67984255],
 			"rates": [0.00000390, -0.00004107, -0.00078890, 58517.81538729, 0.00268329, -0.27769418]
 		},
-		"rotation": {"pole_ra_deg": 272.76, "pole_dec_deg": 67.16, "prime_meridian_deg": 160.20, "rate_deg_per_day": -1.4813688},
+		"rotation": {"obliquity_deg": 177.36, "pole_ra_deg": 272.76, "pole_dec_deg": 67.16, "prime_meridian_deg": 160.20, "rate_deg_per_day": -1.4813688},
 		"texture": "res://assets/textures/bodies/venus_surface.jpg",
 		"color": "#E8C27A"
 	},
@@ -51,7 +51,7 @@
 			"elements": [1.00000261, 0.01671123, -0.00001531, 100.46457166, 102.93768193, 0.0],
 			"rates": [0.00000562, -0.00004392, -0.01294668, 35999.37244981, 0.32327364, 0.0]
 		},
-		"rotation": {"pole_ra_deg": 0.0, "pole_dec_deg": 90.0, "prime_meridian_deg": 190.147, "rate_deg_per_day": 360.9856235},
+		"rotation": {"obliquity_deg": 23.44, "pole_ra_deg": 0.0, "pole_dec_deg": 90.0, "prime_meridian_deg": 190.147, "rate_deg_per_day": 360.9856235},
 		"texture": "res://assets/textures/bodies/earth_daymap.jpg",
 		"night_texture": "res://assets/textures/bodies/earth_nightmap.jpg",
 		"color": "#4F9DFF"
@@ -67,7 +67,7 @@
 			"elements": [0.0025695553, 0.0549, 5.145, 218.3164477, 83.3532465, 125.0445479],
 			"rates": [0.0, 0.0, 0.0, 481267.88123421, 4069.0137287, -1934.1362891]
 		},
-		"rotation": {"pole_ra_deg": 269.9949, "pole_dec_deg": 66.5392, "prime_meridian_deg": 38.3213, "rate_deg_per_day": 13.17635815},
+		"rotation": {"obliquity_deg": 1.54, "pole_ra_deg": 269.9949, "pole_dec_deg": 66.5392, "prime_meridian_deg": 38.3213, "rate_deg_per_day": 13.17635815},
 		"texture": "res://assets/textures/bodies/moon.jpg",
 		"color": "#CFCFCF"
 	},
@@ -82,7 +82,7 @@
 			"elements": [1.52371034, 0.09339410, 1.84969142, -4.55343205, -23.94362959, 49.55953891],
 			"rates": [0.00001847, 0.00007882, -0.00813131, 19140.30268499, 0.44441088, -0.29257343]
 		},
-		"rotation": {"pole_ra_deg": 317.269202, "pole_dec_deg": 54.432516, "prime_meridian_deg": 176.049863, "rate_deg_per_day": 350.891982443297},
+		"rotation": {"obliquity_deg": 25.19, "pole_ra_deg": 317.269202, "pole_dec_deg": 54.432516, "prime_meridian_deg": 176.049863, "rate_deg_per_day": 350.891982443297},
 		"texture": "res://assets/textures/bodies/mars.jpg",
 		"color": "#E2653D"
 	},
@@ -97,7 +97,7 @@
 			"elements": [5.20288700, 0.04838624, 1.30439695, 34.39644051, 14.72847983, 100.47390909],
 			"rates": [-0.00011607, -0.00013253, -0.00183714, 3034.74612775, 0.21252668, 0.20469106]
 		},
-		"rotation": {"pole_ra_deg": 268.056595, "pole_dec_deg": 64.495303, "prime_meridian_deg": 284.95, "rate_deg_per_day": 870.536},
+		"rotation": {"obliquity_deg": 3.13, "pole_ra_deg": 268.056595, "pole_dec_deg": 64.495303, "prime_meridian_deg": 284.95, "rate_deg_per_day": 870.536},
 		"texture": "res://assets/textures/bodies/jupiter.jpg",
 		"color": "#D9A066"
 	},
@@ -112,7 +112,7 @@
 			"elements": [9.53667594, 0.05386179, 2.48599187, 49.95424423, 92.59887831, 113.66242448],
 			"rates": [-0.00125060, -0.00050991, 0.00193609, 1222.49362201, -0.41897216, -0.28867794]
 		},
-		"rotation": {"pole_ra_deg": 40.589, "pole_dec_deg": 83.537, "prime_meridian_deg": 38.90, "rate_deg_per_day": 810.7939024},
+		"rotation": {"obliquity_deg": 26.73, "pole_ra_deg": 40.589, "pole_dec_deg": 83.537, "prime_meridian_deg": 38.90, "rate_deg_per_day": 810.7939024},
 		"texture": "res://assets/textures/bodies/saturn.jpg",
 		"color": "#E8D08B"
 	},
@@ -127,7 +127,7 @@
 			"elements": [19.18916464, 0.04725744, 0.77263783, 313.23810451, 170.95427630, 74.01692503],
 			"rates": [-0.00196176, -0.00004397, -0.00242939, 428.48202785, 0.40805281, 0.04240589]
 		},
-		"rotation": {"pole_ra_deg": 257.311, "pole_dec_deg": -15.175, "prime_meridian_deg": 203.81, "rate_deg_per_day": -501.1600928},
+		"rotation": {"obliquity_deg": 97.77, "pole_ra_deg": 257.311, "pole_dec_deg": -15.175, "prime_meridian_deg": 203.81, "rate_deg_per_day": -501.1600928},
 		"texture": "res://assets/textures/bodies/uranus.jpg",
 		"color": "#7FE0E6"
 	},
@@ -142,7 +142,7 @@
 			"elements": [30.06992276, 0.00859048, 1.77004347, -55.12002969, 44.96476227, 131.78422574],
 			"rates": [0.00026291, 0.00005105, 0.00035372, 218.45945325, -0.32241464, -0.00508664]
 		},
-		"rotation": {"pole_ra_deg": 299.36, "pole_dec_deg": 43.46, "prime_meridian_deg": 249.978, "rate_deg_per_day": 541.1397757},
+		"rotation": {"obliquity_deg": 28.32, "pole_ra_deg": 299.36, "pole_dec_deg": 43.46, "prime_meridian_deg": 249.978, "rate_deg_per_day": 541.1397757},
 		"texture": "res://assets/textures/bodies/neptune.jpg",
 		"color": "#4A6BFF"
 	}

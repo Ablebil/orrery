@@ -12,6 +12,7 @@ var parent_id: String
 var mass_kg: float
 var radius_km: float
 var orbit: OrbitModel
+var obliquity_deg: float
 var pole_right_ascension_deg: float
 var pole_declination_deg: float
 var prime_meridian_deg: float
@@ -33,6 +34,7 @@ static func from_dictionary(data: Dictionary) -> BodyDefinition:
 	if data.has("orbit"):
 		body.orbit = OrbitModel.from_dictionary(data["orbit"])
 	var rotation: Dictionary = data["rotation"]
+	body.obliquity_deg = rotation["obliquity_deg"]
 	body.pole_right_ascension_deg = rotation["pole_ra_deg"]
 	body.pole_declination_deg = rotation["pole_dec_deg"]
 	body.prime_meridian_deg = rotation["prime_meridian_deg"]
