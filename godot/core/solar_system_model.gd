@@ -1,6 +1,8 @@
 class_name SolarSystemModel
 extends RefCounted
 
+const SPEED_SAMPLE_SECONDS := 1800.0
+
 var bodies: Array[BodyDefinition] = []
 var relative_km: Dictionary = {}
 var absolute_km: Dictionary = {}
@@ -22,6 +24,14 @@ func get_parent_body(body: BodyDefinition) -> BodyDefinition:
 	if body.parent_id == "":
 		return null
 	return _by_id.get(body.parent_id)
+
+
+func relative_speed_km_s(body: BodyDefinition, simulation_seconds: float) -> float:
+	if body.orbit == null:
+		return 0.0
+	var before := body.orbit.position_km((simulation_seconds - SPEED_SAMPLE_SECONDS) / Astro.SECONDS_PER_CENTURY)
+	var after := body.orbit.position_km((simulation_seconds + SPEED_SAMPLE_SECONDS) / Astro.SECONDS_PER_CENTURY)
+	return after.minus(before).length() / (2.0 * SPEED_SAMPLE_SECONDS)
 
 
 func update(simulation_seconds: float) -> void:
