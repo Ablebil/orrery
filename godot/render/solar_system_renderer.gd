@@ -18,6 +18,8 @@ var _model: SolarSystemModel
 var _visuals: Dictionary = {}
 var _trails: Dictionary = {}
 var _render_positions: Dictionary = {}
+var _camera_relative: Dictionary = {}
+var _camera_radius: Dictionary = {}
 var _halo := MeshInstance3D.new()
 var _scratch := PackedFloat64Array([0.0, 0.0, 0.0])
 
@@ -62,6 +64,53 @@ func render_position(id: String) -> PackedFloat64Array:
 	return _render_positions[id]
 
 
+func camera_relative_position(id: String) -> Vector3:
+	return _camera_relative.get(id, Vector3.ZERO)
+
+
+func camera_relative_radius(id: String) -> float:
+	return _camera_radius.get(id, 0.0)
+
+
+func set_trails_visible(value: bool) -> void:
+	for trail: OrbitTrail in _trails.values():
+		trail.visible = value
+
+
+func is_occluded(id: String) -> bool:
+	var target: Vector3 = _camera_relative.get(id, Vector3.ZERO)
+	var target_distance := target.length()
+	if target_distance < 1.0e-9:
+		return false
+	for body in _model.bodies:
+		if body.id == id:
+			continue
+		var other: Vector3 = _camera_relative[body.id]
+		var other_distance := other.length()
+		if other_distance < 1.0e-9 or other_distance >= target_distance:
+			continue
+		var angle := acos(clampf(target.dot(other) / (target_distance * other_distance), -1.0, 1.0))
+		if angle < asin(clampf(_camera_radius[body.id] / other_distance, 0.0, 1.0)):
+			return true
+	return false
+
+
+func pick(ray_direction: Vector3, tolerance_angle: float) -> String:
+	var best_id := ""
+	var best_distance := INF
+	for body in _model.bodies:
+		var position: Vector3 = _camera_relative.get(body.id, Vector3.ZERO)
+		var distance := position.length()
+		if distance < 1.0e-9 or distance >= best_distance:
+			continue
+		var angle := acos(clampf(ray_direction.dot(position) / distance, -1.0, 1.0))
+		var angular_radius := asin(clampf(_camera_radius[body.id] / distance, 0.0, 1.0))
+		if angle <= maxf(angular_radius, tolerance_angle):
+			best_distance = distance
+			best_id = body.id
+	return best_id
+
+
 func nearest_body_id(camera_position: PackedFloat64Array) -> String:
 	var best_id := ""
 	var best_distance := INF
@@ -92,12 +141,11 @@ func update(camera_position: PackedFloat64Array, simulation_seconds: float) -> v
 			sun_position[0] - position[0], sun_position[1] - position[1], sun_position[2] - position[2]
 		)
 		var visual: BodyVisual = _visuals[body.id]
-		visual.place(
-			Vector3(rx, ry, rz) * shrink,
-			mapper.radius(body) * shrink,
-			body.orientation(simulation_seconds),
-			sun_direction.normalized()
-		)
+		var placed_position := Vector3(rx, ry, rz) * shrink
+		var placed_radius := mapper.radius(body) * shrink
+		_camera_relative[body.id] = placed_position
+		_camera_radius[body.id] = placed_radius
+		visual.place(placed_position, placed_radius, body.orientation(simulation_seconds), sun_direction.normalized())
 		if _trails.has(body.id):
 			_update_trail(body, camera_position, simulation_seconds, shell)
 	_place_halo(camera_position, sun_position, shell)
