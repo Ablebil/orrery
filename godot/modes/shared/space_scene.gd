@@ -49,6 +49,8 @@ func _unhandled_input(event: InputEvent) -> void:
 		clock.jump_to_now()
 	elif event.is_action_pressed("toggle_hud"):
 		hud.toggle_visibility()
+	elif event.is_action_pressed("toggle_help"):
+		hud.toggle_help()
 	elif event.is_action_pressed("toggle_labels"):
 		Preferences.set_labels_visible(not Preferences.labels_visible)
 	elif event.is_action_pressed("toggle_trails"):

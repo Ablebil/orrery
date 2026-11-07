@@ -9,7 +9,7 @@ const SCREEN_MARGIN := 40.0
 const HELP_TEXT := (
 	"WASD move   Q/E down/up   Shift boost   Right mouse look   Wheel speed   Click select   Double-click focus\n"
 	+ "Space pause   R reverse   [ ] time speed   N now   T scale   L labels   O orbit lines   M level\n"
-	+ "1-0 focus body   Tab next   F free flight   F2 sandbox   H hide"
+	+ "1-0 focus body   Tab next   F free flight   F2 sandbox   F3 help   H hide"
 )
 
 var model: SolarSystemModel

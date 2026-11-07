@@ -99,6 +99,10 @@ func set_help(text: String) -> void:
 	_help_label.text = text
 
 
+func toggle_help() -> void:
+	_help_label.visible = not _help_label.visible
+
+
 func set_help_visible(value: bool) -> void:
 	_help_label.visible = value
 
