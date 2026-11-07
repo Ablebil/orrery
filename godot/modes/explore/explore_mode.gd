@@ -6,9 +6,10 @@ const INFO_REFRESH_SECONDS := 0.25
 const CLICK_MOVE_TOLERANCE := 6.0
 const MOON_LABEL_HIDE_DISTANCE := 40.0
 const SCREEN_MARGIN := 40.0
+const SCALE_NAMES: Array[String] = ["Compressed", "True scale"]
 const HELP_TEXT := (
 	"WASD move   Q/E down/up   Shift boost   Right mouse look   Wheel speed   Click select   Double-click focus\n"
-	+ "Space pause   R reverse   [ ] time speed   N now   T scale   L labels   O orbit lines   M level\n"
+	+ "Space pause   R reverse   [ ] time speed   N now   T scale   L labels   O orbit lines   G distance rings   M level\n"
 	+ "1-0 focus body   Tab next   F free flight   F2 sandbox   F3 help   H hide"
 )
 
@@ -22,7 +23,8 @@ var _tour_panel := TourPanel.new()
 var _tour_menu := TourMenu.new()
 var _tour_player := TourPlayer.new()
 var _tours: Array[Dictionary] = []
-var _scale_button: Button
+var _scale_control := SegmentedControl.new(SCALE_NAMES, "Distance and size scale (T)")
+var _tours_button: Button
 var _selected_id := ""
 var _info_timer := 0.0
 var _press_position := Vector2.ZERO
@@ -41,9 +43,18 @@ func _build_world() -> void:
 	hud.left_column.add_child(_tour_menu)
 	hud.bottom_center.add_child(_tour_panel)
 	_tour_menu.populate(_tours)
-	_scale_button = Hud.make_button("", func() -> void: _set_scale_mode(_other_scale_mode()))
-	hud.add_setting(_scale_button)
-	hud.add_setting(Hud.make_button("Guided tours", _toggle_tour_menu))
+	hud.add_setting(HSeparator.new())
+	hud.add_setting(Hud.section_label("Scale"))
+	hud.add_setting(_scale_control)
+	_scale_control.selected.connect(func(index: int) -> void: _set_scale_mode(index as ScaleMapper.Mode))
+	_tours_button = Hud.make_button("Guided tours", _toggle_tour_menu, "Choose a guided tour")
+	_tours_button.toggle_mode = true
+	var tours_chip := PanelContainer.new()
+	tours_chip.theme_type_variation = "ChipPanel"
+	tours_chip.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	tours_chip.add_child(_tours_button)
+	hud.left_column.add_child(tours_chip)
+	hud.left_column.move_child(tours_chip, 1)
 	hud.set_help(HELP_TEXT)
 	hud.set_mode_switch("Open Sandbox (F2)")
 	for index in model.bodies.size():
@@ -51,6 +62,7 @@ func _build_world() -> void:
 	_info_panel.focus_requested.connect(_fly_to)
 	_info_panel.close_requested.connect(_clear_selection)
 	_tour_menu.tour_selected.connect(_start_tour)
+	_tour_menu.close_requested.connect(_toggle_tour_menu)
 	_tour_player.step_changed.connect(_on_tour_step)
 	_tour_player.stopped.connect(_on_tour_stopped)
 	_tour_panel.previous_pressed.connect(_tour_player.previous)
@@ -75,7 +87,8 @@ func _process(delta: float) -> void:
 		_refresh_info_values()
 	hud.refresh(clock)
 	hud.set_status("Focus: " + _focus_name())
-	_scale_button.text = "Scale: " + ("True" if renderer.mapper.mode == ScaleMapper.Mode.TRUE_SCALE else "Compressed")
+	_scale_control.select(renderer.mapper.mode)
+	_tours_button.set_pressed_no_signal(_tour_menu.visible)
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -109,6 +122,7 @@ func _on_quality_changed() -> void:
 
 func _on_preferences_changed() -> void:
 	renderer.set_trails_visible(Preferences.trails_visible)
+	renderer.set_rings_visible(Preferences.rings_visible)
 	_refresh_selection_content()
 	if _tour_player.active and not _current_step.is_empty():
 		_tour_panel.refresh_text(_current_step)
@@ -242,6 +256,8 @@ func _set_scale_mode(mode: ScaleMapper.Mode) -> void:
 
 func _update_labels() -> void:
 	var entries: Array = []
+	if Preferences.labels_visible:
+		append_ring_labels(entries, renderer.ring_label_entries())
 	if not Preferences.labels_visible and _selected_id == "":
 		_labels.set_entries(entries)
 		return
@@ -302,7 +318,6 @@ func _on_tour_step(tour_title: String, step: Dictionary, index: int, count: int)
 
 func _on_tour_stopped() -> void:
 	_current_step = {}
-	hud.set_help_visible(true)
 	_tour_panel.dismiss()
 	_refresh_selection_content()
 
