@@ -178,10 +178,15 @@ Godot's `Vector3` is single-precision by default, which causes jitter at solar-s
 
 ### 7.3 Simulation
 
-- Fixed-step simulation decoupled from frame rate, with sub-stepping at high time multipliers.
-- Default integrator: Velocity Verlet. RK4 available as an option.
-- Initial conditions: published orbital elements, converted to state vectors and embedded in a local data file.
-- Pairwise gravity is O(n²), which is why body count is capped per quality preset.
+Two models share the same body data:
+
+- **Explore mode** propagates every body analytically along its Keplerian orbit, using published orbital elements and their rates (NASA JPL, valid 1800 AD – 2050 AD), with the Moon modeled around Earth. This is exact at any time speed, supports reversing and jumping in time at no cost, and keeps cost linear in the number of bodies.
+- **Sandbox mode** integrates mutual gravity numerically. Bodies start from state vectors derived from the same orbital elements.
+  - Fixed-step simulation decoupled from frame rate, with sub-stepping at high time multipliers.
+  - Default integrator: Velocity Verlet. RK4 available as an option.
+  - Pairwise gravity is O(n²), which is why body count is capped per quality preset.
+
+All orbital and physical data is embedded in `data/bodies.json`, so no network access is needed.
 
 ### 7.4 Cross-Platform Notes
 
@@ -203,14 +208,15 @@ Godot's `Vector3` is single-precision by default, which causes jitter at solar-s
 orrery/
 ├── docs/            Product and technical documentation, final report
 ├── godot/           Godot project
-│   ├── core/        Simulation, integrators, data loading
+│   ├── core/        Simulation, orbit models, clock, settings
 │   ├── render/      Bodies, trails, shaders, camera
 │   ├── ui/          Menus, panels, HUD, credits
 │   ├── audio/       Audio manager, buses, playback
 │   ├── modes/       Explore and Sandbox mode logic
-│   └── data/        Orbital data, body info, tour and narration scripts
+│   ├── data/        Orbital data, body info, tour and narration scripts
+│   └── assets/      Runtime textures, audio, and fonts bundled into the build
 ├── tools/           Offline scripts, such as narration generation
-└── assets/          Source textures, audio, fonts, and license records
+└── assets/          License register for every bundled third-party asset
 ```
 
 ## 8. Computer Graphics Techniques (Report Material)
