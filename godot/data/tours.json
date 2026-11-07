@@ -1,0 +1,145 @@
+[
+	{
+		"id": "grand_tour",
+		"title": "Grand Tour",
+		"summary": "Visit the Sun and every planet, from Mercury to Neptune.",
+		"steps": [
+			{
+				"target": "sun",
+				"title": "The Sun",
+				"scale": "compressed",
+				"distance_radii": 3.0,
+				"text": "Our journey starts at the Sun, a star about 109 times wider than Earth. Everything in the solar system is held in orbit by its gravity.",
+				"text_scientist": "A G2V star with a mean radius of 695,700 km and 99.86% of the solar system's mass. Planetary orbits here are computed from JPL Keplerian elements."
+			},
+			{
+				"target": "mercury",
+				"title": "Mercury",
+				"text": "Mercury is the closest planet to the Sun and completes an orbit in just 88 days. It is about 40% wider than our Moon.",
+				"text_scientist": "Semi-major axis 0.387 AU, eccentricity 0.206, period 87.97 days. A 3:2 spin-orbit resonance gives a solar day of about 176 Earth days."
+			},
+			{
+				"target": "venus",
+				"title": "Venus",
+				"text": "Venus is wrapped in thick clouds that trap heat, making it the hottest planet. It spins backwards, so the Sun rises in the west.",
+				"text_scientist": "Semi-major axis 0.723 AU, period 224.7 days, retrograde sidereal rotation of 243 days, and a surface pressure of about 92 bar."
+			},
+			{
+				"target": "earth",
+				"title": "Earth",
+				"text": "Earth is the third planet from the Sun and the only world known to host life. Notice its blue oceans.",
+				"text_scientist": "Semi-major axis 1.000 AU, eccentricity 0.0167, obliquity 23.44 degrees. The elements used describe the Earth-Moon barycenter."
+			},
+			{
+				"target": "moon",
+				"title": "The Moon",
+				"distance_radii": 5.0,
+				"text": "The Moon circles Earth about once every 27 days. In this compressed view it is drawn much closer to Earth than it truly is.",
+				"text_scientist": "Semi-major axis 384,400 km, eccentricity 0.055, inclination 5.14 degrees, sidereal period 27.32 days. Tidal locking keeps its near side facing Earth."
+			},
+			{
+				"target": "mars",
+				"title": "Mars",
+				"text": "Mars is a cold desert planet with giant volcanoes and deep canyons. Robots have been exploring its surface for decades.",
+				"text_scientist": "Semi-major axis 1.524 AU, eccentricity 0.093, period 687 days, and an obliquity of 25.2 degrees that gives Earth-like seasons of unequal length."
+			},
+			{
+				"target": "jupiter",
+				"title": "Jupiter",
+				"text": "Jupiter is the giant of the solar system, more than 11 times wider than Earth. Its bands are storm clouds stretched out by its fast spin.",
+				"text_scientist": "Semi-major axis 5.203 AU, period 11.86 years, a mass of about 318 Earth masses, and a sidereal rotation period near 9.9 hours."
+			},
+			{
+				"target": "saturn",
+				"title": "Saturn",
+				"text": "Saturn is the second-largest planet and is known for its system of icy rings. It is so light for its size that it would float in water.",
+				"text_scientist": "Semi-major axis 9.537 AU, period 29.4 years, a mean density of about 0.69 g/cm3, and rings made mostly of water ice."
+			},
+			{
+				"target": "uranus",
+				"title": "Uranus",
+				"text": "Uranus is an ice giant that rotates on its side. Its pale blue-green color comes from methane in its atmosphere.",
+				"text_scientist": "Semi-major axis 19.19 AU, period 84 years, obliquity 97.8 degrees, and a retrograde rotation period of about 17.2 hours."
+			},
+			{
+				"target": "neptune",
+				"title": "Neptune",
+				"text": "Neptune is the most distant planet, about 30 times farther from the Sun than Earth. Sunlight takes over four hours to reach it.",
+				"text_scientist": "Semi-major axis 30.07 AU, period 164.8 years, and sustained winds above 2,000 km/h in its upper atmosphere."
+			}
+		]
+	},
+	{
+		"id": "earth_moon",
+		"title": "Earth and Moon",
+		"summary": "See how the Moon orbits Earth, and how far away it really is.",
+		"steps": [
+			{
+				"target": "earth",
+				"title": "A planet and its Moon",
+				"scale": "compressed",
+				"text": "Earth and the Moon form a pair. The Moon's gravity raises our ocean tides and helps keep Earth's tilt steady over very long times.",
+				"text_scientist": "The Moon has about 1.2% of Earth's mass, so the two bodies orbit a common barycenter that lies inside Earth, about 4,600 km from its center."
+			},
+			{
+				"target": "moon",
+				"title": "Always the same face",
+				"distance_radii": 5.0,
+				"text": "The Moon always shows Earth the same face. It takes about 27 days to orbit Earth, and the same time to spin once.",
+				"text_scientist": "Tidal locking synchronizes the sidereal rotation period with the 27.32-day orbital period. Orbital eccentricity of 0.055 causes visible libration."
+			},
+			{
+				"target": "earth",
+				"title": "The true distance",
+				"scale": "true",
+				"distance_radii": 6.0,
+				"text": "At true scale, the Moon is about 30 Earth-widths away. Distances in space are far larger than most models suggest.",
+				"text_scientist": "The mean Earth-Moon distance of 384,400 km is about 60 Earth radii, or 30 Earth diameters."
+			},
+			{
+				"target": "moon",
+				"title": "A second away",
+				"scale": "true",
+				"distance_radii": 6.0,
+				"text": "Light takes just over one second to travel from the Moon to Earth. Sunlight, by comparison, needs about eight minutes.",
+				"text_scientist": "At 384,400 km the one-way light time is about 1.28 s. At 1 AU the light time is about 499 s."
+			}
+		]
+	},
+	{
+		"id": "sense_of_scale",
+		"title": "Sense of Scale",
+		"summary": "Compare the true sizes and distances of Earth, Jupiter, the Sun, and Neptune.",
+		"steps": [
+			{
+				"target": "earth",
+				"title": "Earth",
+				"scale": "true",
+				"distance_radii": 4.0,
+				"text": "This is Earth at true scale, 12,742 km across. Remember this size as we compare other worlds.",
+				"text_scientist": "Mean radius 6,371 km. All sizes and distances in true-scale mode are drawn at 1 render unit per 1,000 km."
+			},
+			{
+				"target": "jupiter",
+				"title": "Jupiter",
+				"distance_radii": 3.5,
+				"text": "Jupiter is about 11 times wider than Earth. More than 1,300 Earths could fit inside it.",
+				"text_scientist": "Mean radius 69,911 km, a volume ratio of about 1,321 Earths, and a mass of about 318 Earth masses."
+			},
+			{
+				"target": "sun",
+				"title": "The Sun",
+				"distance_radii": 3.0,
+				"text": "The Sun is about 109 times wider than Earth, and about 1.3 million Earths could fit inside it.",
+				"text_scientist": "Mean radius 695,700 km, a volume ratio of about 1.3 million Earths, and 99.86% of the solar system's mass."
+			},
+			{
+				"target": "neptune",
+				"title": "Neptune",
+				"distance_radii": 4.0,
+				"text": "Neptune orbits about 4.5 billion kilometers from the Sun. Sunlight needs over four hours to reach it.",
+				"text_scientist": "Semi-major axis 30.07 AU, so the one-way light time from the Sun is about 4.2 hours."
+			}
+		]
+	}
+]
