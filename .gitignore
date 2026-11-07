@@ -1,0 +1,12 @@
+.godot/
+.import/
+*.translation
+export/
+builds/
+*.tmp
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+*.swp
