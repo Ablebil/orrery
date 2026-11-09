@@ -4,8 +4,10 @@ An interactive 3D solar system for exploration and gravity experiments. Built wi
 
 ## Modes
 
-- **Explore** — fly through the solar system, select any body to read about it, and follow guided tours. Information is shown at two depth levels: Explorer for plain language and Scientist for full numeric data.
-- **Sandbox** — an N-body gravity simulator. Place bodies, launch them with a drag, edit or freeze them, and watch the orbits respond.
+- **Explore**: fly through the solar system, select any body to read about it, and follow guided tours. Information is shown at two depth levels: Explorer for plain language and Scientist for full numeric data. Planets have atmosphere glow, Earth has a cloud layer, and an instanced asteroid belt orbits between Mars and Jupiter.
+- **Sandbox**: an N-body gravity simulator. Place bodies, launch them with a drag, then edit, freeze, or remove them and watch the orbits respond. Bodies that collide merge, and the merge conserves momentum. Load a preset (solar system, binary star, extra planet, rogue star flyby), or save a snapshot and restore it later. At Scientist level you can choose the integrator (Velocity Verlet or RK4) and the time step.
+
+Background music and sound effects play in both modes. Music, effects, and narration each have a volume slider in the settings panel, and music can be muted.
 
 ## Structure
 
@@ -13,7 +15,7 @@ An interactive 3D solar system for exploration and gravity experiments. Built wi
 |---|---|
 | `docs/` | Product requirements, technical docs, final report |
 | `godot/` | Godot project |
-| `tools/` | Offline tooling, such as narration generation |
+| `tools/` | Offline tooling: narration (`tts/`), music and sound effects (`audio/`) |
 | `assets/` | Asset license register |
 
 ## Requirements
@@ -51,7 +53,7 @@ On Linux, mark the exported file as executable with `chmod +x`.
 | R | Reverse time |
 | `[` and `]` | Slower and faster time |
 | L, O, G | Toggle labels, orbit lines, and distance rings |
-| M | Switch between Explorer and Scientist levels (Explore) |
+| M | Switch between Explorer and Scientist levels |
 | 1 – 0 | Focus a body |
 | F | Release focus into free flight |
 | F1 / F2 | Open Explore / open Sandbox |
@@ -85,4 +87,11 @@ Sepak Takraw — see `docs/PRD.md`, Appendix A.
 
 ## Status
 
-Weeks 1 and 2 of 4 are complete: core simulation and rendering, Explore mode with information panels, depth levels, labels, distance rings, and guided tours, and the Sandbox with an N-body engine, placement, launch, edit, remove, and reset. See `docs/PRD.md` for the full plan.
+Weeks 1 to 3 of 4 are complete:
+
+- Core simulation and rendering.
+- Explore mode: information panels, depth levels, labels, distance rings, guided tours, atmosphere and cloud shaders, a quality-tiered ring shader, and the asteroid belt.
+- Sandbox: N-body engine with placement, launch, edit, and remove; collision merging; presets and snapshots; selectable integrator and time step; body caps per quality preset.
+- Audio: audio manager with music, sound effects, and separate volume controls.
+
+See `docs/PRD.md` for the full plan.
