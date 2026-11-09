@@ -9,6 +9,7 @@ const EFFECTS_BUS := &"Effects"
 const NARRATION_BUS := &"Narration"
 const MUSIC_PATH := "res://assets/audio/music/space_ambient.ogg"
 const EFFECT_PATH := "res://assets/audio/effects/%s.ogg"
+const NARRATION_PATH := "res://assets/audio/narration/%s.ogg"
 const EFFECT_NAMES: Array[StringName] = [&"click", &"place", &"launch", &"merge", &"remove"]
 const EFFECT_VOLUME_DB := {&"click": -6.0}
 const EFFECT_VOICES := 8
@@ -16,6 +17,8 @@ const MUSIC_FADE_SECONDS := 4.0
 const SILENT_DB := -60.0
 const MINIMUM_VOLUME := 0.0001
 const QUIT_SETTLE_SECONDS := 0.1
+const DUCK_DB := -8.0
+const DUCK_SECONDS := 0.4
 
 var music_volume := 0.5
 var effects_volume := 0.8
@@ -24,9 +27,15 @@ var music_muted := false
 var narration_enabled := true
 
 var _music_player := AudioStreamPlayer.new()
+var _narration_player := AudioStreamPlayer.new()
 var _effect_players: Array[AudioStreamPlayer] = []
 var _effects: Dictionary[StringName, AudioStream] = {}
 var _next_voice := 0
+var _fade_db := SILENT_DB
+var _duck_db := 0.0
+var _duck_tween: Tween
+var _narration_scene_id := 0
+var _narrated_once: Dictionary[String, bool] = {}
 
 
 func _ready() -> void:
@@ -43,23 +52,54 @@ func _ready() -> void:
 		player.bus = EFFECTS_BUS
 		add_child(player)
 		_effect_players.append(player)
+	_narration_player.bus = NARRATION_BUS
+	_narration_player.process_mode = Node.PROCESS_MODE_PAUSABLE
+	_narration_player.finished.connect(_duck.bind(false))
+	add_child(_narration_player)
 	_start_music()
 	get_tree().node_added.connect(_on_node_added)
+	get_tree().scene_changed.connect(_on_scene_changed)
 	for node in get_tree().root.find_children("*", "BaseButton", true, false):
 		_attach_click(node as BaseButton)
 
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_WM_CLOSE_REQUEST:
-		_quit_after_silence()
+		quit_application()
 
 
-func _quit_after_silence() -> void:
+func quit_application() -> void:
 	_music_player.stop()
+	_narration_player.stop()
 	for player in _effect_players:
 		player.stop()
 	await get_tree().create_timer(QUIT_SETTLE_SECONDS, true, false, true).timeout
 	get_tree().quit()
+
+
+func play_narration(id: String) -> void:
+	if not narration_enabled:
+		return
+	var path := NARRATION_PATH % id
+	if not ResourceLoader.exists(path):
+		stop_narration()
+		return
+	_narration_scene_id = _current_scene_id()
+	_narration_player.stream = load(path) as AudioStream
+	_narration_player.play()
+	_duck(true)
+
+
+func play_narration_once(id: String) -> void:
+	if _narrated_once.has(id):
+		return
+	_narrated_once[id] = true
+	play_narration(id)
+
+
+func stop_narration() -> void:
+	_narration_player.stop()
+	_duck(false)
 
 
 func play_effect(effect_name: StringName) -> void:
@@ -107,7 +147,36 @@ func set_narration_enabled(value: bool) -> void:
 	if value == narration_enabled:
 		return
 	narration_enabled = value
+	if not narration_enabled:
+		stop_narration()
 	_commit()
+
+
+func _duck(active: bool) -> void:
+	if _duck_tween != null:
+		_duck_tween.kill()
+	_duck_tween = create_tween()
+	_duck_tween.tween_method(_set_duck_db, _duck_db, DUCK_DB if active else 0.0, DUCK_SECONDS)
+
+
+func _set_duck_db(value: float) -> void:
+	_duck_db = value
+	_music_player.volume_db = _fade_db + _duck_db
+
+
+func _set_fade_db(value: float) -> void:
+	_fade_db = value
+	_music_player.volume_db = _fade_db + _duck_db
+
+
+func _current_scene_id() -> int:
+	var scene := get_tree().current_scene
+	return scene.get_instance_id() if scene != null else 0
+
+
+func _on_scene_changed() -> void:
+	if _current_scene_id() != _narration_scene_id:
+		stop_narration()
 
 
 func _start_music() -> void:
@@ -117,12 +186,11 @@ func _start_music() -> void:
 	music.loop = true
 	_music_player.stream = music
 	_music_player.bus = MUSIC_BUS
-	_music_player.volume_db = SILENT_DB
+	_music_player.volume_db = _fade_db + _duck_db
 	add_child(_music_player)
 	_music_player.play()
-	create_tween().tween_property(_music_player, "volume_db", 0.0, MUSIC_FADE_SECONDS).set_ease(Tween.EASE_OUT).set_trans(
-		Tween.TRANS_SINE
-	)
+	var fade := create_tween().tween_method(_set_fade_db, SILENT_DB, 0.0, MUSIC_FADE_SECONDS)
+	fade.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_SINE)
 
 
 func _free_player() -> AudioStreamPlayer:
@@ -157,7 +225,7 @@ func _commit() -> void:
 func _apply() -> void:
 	_set_bus(MUSIC_BUS, music_volume, music_muted)
 	_set_bus(EFFECTS_BUS, effects_volume, false)
-	_set_bus(NARRATION_BUS, narration_volume, not narration_enabled)
+	_set_bus(NARRATION_BUS, narration_volume, false)
 
 
 func _set_bus(bus_name: StringName, volume: float, muted: bool) -> void:

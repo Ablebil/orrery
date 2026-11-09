@@ -19,10 +19,15 @@ On Windows without a local Python, run it inside WSL or Linux with `UV_LINK_MODE
 
 | Option | Default | Purpose |
 |---|---|---|
-| `--script` | `godot/data/narration.json` | Narration entries, each with an `id` and `text` |
+| `--script` | `godot/data/narration.json` | Standalone narration entries, each with an `id` and `text` |
+| `--tours` | `godot/data/tours.json` | Guided tours. Every step is voiced from `text` and `text_scientist` |
 | `--output` | `godot/assets/audio/narration` | Destination for `<id>.ogg` files |
 | `--voice` | `af_bella` | Kokoro voice name |
 | `--speed` | `1.0` | Speaking speed |
 | `--force` | off | Regenerate every entry |
 
-Only entries whose text, voice, or speed changed are regenerated. Keep each entry to roughly 100 to 200 tokens for the best prosody.
+Tour step audio is named `<tour id>_<step number>_<level>.ogg`, where the step number starts at 01 and the level is `explorer` or `scientist`, for example `grand_tour_03_scientist.ogg`. The game derives the same name from the active tour step and depth level.
+
+Only entries whose spoken text, voice, or speed changed are regenerated. Audio files and manifest entries whose id no longer exists are removed. Keep each entry to roughly 100 to 200 tokens for the best prosody.
+
+Before synthesis, units and symbols that Kokoro reads poorly, such as `AU`, `km`, `km/h`, `g/cm3`, `s`, and ratios like `3:2`, are expanded into words. The on-screen captions keep the original text.

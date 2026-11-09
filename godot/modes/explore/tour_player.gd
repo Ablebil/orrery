@@ -8,6 +8,7 @@ var active := false
 
 var _tour: Dictionary = {}
 var _index := 0
+var _narration_id := ""
 
 
 func start(tour: Dictionary) -> void:
@@ -36,16 +37,35 @@ func previous() -> void:
 
 func replay() -> void:
 	if active:
-		_emit_step()
+		_narrate()
+
+
+func sync_narration() -> void:
+	if active and _current_narration_id() != _narration_id:
+		_narrate()
 
 
 func stop() -> void:
 	if not active:
 		return
 	active = false
+	_narration_id = ""
+	Audio.stop_narration()
 	stopped.emit()
 
 
 func _emit_step() -> void:
 	var steps: Array = _tour["steps"]
 	step_changed.emit(_tour["title"], steps[_index], _index, steps.size())
+	_narrate()
+
+
+func _narrate() -> void:
+	_narration_id = _current_narration_id()
+	Audio.play_narration(_narration_id)
+
+
+func _current_narration_id() -> String:
+	var step: Dictionary = _tour["steps"][_index]
+	var level := "scientist" if Preferences.is_scientist() and step.has("text_scientist") else "explorer"
+	return "%s_%02d_%s" % [_tour["id"], _index + 1, level]
