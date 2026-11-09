@@ -22,6 +22,12 @@ var night_texture_path: String
 var ring_inner_km := 0.0
 var ring_outer_km := 0.0
 var ring_texture_path := ""
+var atmosphere_color := Color.WHITE
+var atmosphere_thickness := 0.0
+var atmosphere_intensity := 0.0
+var cloud_texture_path := ""
+var cloud_altitude := 0.0
+var cloud_opacity := 0.0
 var color: Color
 var emissive: bool
 
@@ -49,6 +55,16 @@ static func from_dictionary(data: Dictionary) -> BodyDefinition:
 		body.ring_inner_km = rings["inner_km"]
 		body.ring_outer_km = rings["outer_km"]
 		body.ring_texture_path = rings["texture"]
+	if data.has("atmosphere"):
+		var atmosphere: Dictionary = data["atmosphere"]
+		body.atmosphere_color = Color.html(atmosphere["color"])
+		body.atmosphere_thickness = atmosphere["thickness"]
+		body.atmosphere_intensity = atmosphere["intensity"]
+	if data.has("clouds"):
+		var clouds: Dictionary = data["clouds"]
+		body.cloud_texture_path = clouds["texture"]
+		body.cloud_altitude = clouds["altitude"]
+		body.cloud_opacity = clouds["opacity"]
 	body.color = Color.html(data["color"])
 	body.emissive = data.get("emissive", false)
 	return body

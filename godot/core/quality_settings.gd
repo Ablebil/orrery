@@ -19,6 +19,8 @@ const PROFILES := {
 		"render_scale": 0.75,
 		"msaa": Viewport.MSAA_DISABLED,
 		"max_bodies": 32,
+		"full_effects": false,
+		"asteroid_count": 1500,
 	},
 	Preset.MEDIUM:
 	{
@@ -30,6 +32,8 @@ const PROFILES := {
 		"render_scale": 1.0,
 		"msaa": Viewport.MSAA_2X,
 		"max_bodies": 64,
+		"full_effects": true,
+		"asteroid_count": 4000,
 	},
 	Preset.HIGH:
 	{
@@ -41,6 +45,8 @@ const PROFILES := {
 		"render_scale": 1.0,
 		"msaa": Viewport.MSAA_4X,
 		"max_bodies": 128,
+		"full_effects": true,
+		"asteroid_count": 10000,
 	},
 }
 

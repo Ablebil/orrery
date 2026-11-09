@@ -81,6 +81,7 @@ func apply_quality() -> void:
 	var profile := Quality.profile()
 	for visual: BodyVisual in _visuals.values():
 		visual.set_mesh_detail(profile["sphere_radial_segments"], profile["sphere_rings"])
+		visual.set_effects_detail(profile["full_effects"])
 	for trail: SandboxTrail in _trails.values():
 		trail.configure(profile["trail_points"], profile["trail_length_fraction"])
 
@@ -290,9 +291,12 @@ func _sync_bodies() -> void:
 			continue
 		var visual := BodyVisual.new(body.texture_path, body.night_texture_path, body.emissive, _tint_for(body))
 		visual.set_mesh_detail(profile["sphere_radial_segments"], profile["sphere_rings"])
+		visual.set_effects_detail(profile["full_effects"])
 		var definition := body.definition
 		if definition != null and definition.ring_texture_path != "":
 			visual.add_rings(definition.ring_inner_km / definition.radius_km, definition.ring_outer_km / definition.radius_km, definition.ring_texture_path)
+		if definition != null:
+			visual.add_atmosphere_layers(definition)
 		add_child(visual)
 		_visuals[body.id] = visual
 		var trail := SandboxTrail.new(body.color)
