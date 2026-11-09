@@ -1,0 +1,91 @@
+[
+	{
+		"name": "Solar system",
+		"description": "The Sun, planets and the Moon at the current simulation date",
+		"solar_system": true,
+		"bodies": []
+	},
+	{
+		"name": "Binary star",
+		"description": "Two Sun-like stars on a 65-day mutual orbit with an Earth-mass planet circling both",
+		"solar_system": false,
+		"bodies": [
+			{
+				"id": "star_a",
+				"name": "Star A",
+				"kind": "star",
+				"mass_kg": 1.98847e30,
+				"radius_km": 695700.0,
+				"texture": "res://assets/textures/bodies/sun.jpg",
+				"color": "#FFD27D",
+				"emissive": true,
+				"position_km": [29919574.14, 0.0, 0.0],
+				"velocity_km_s": [0.0, 33.3008, 0.0]
+			},
+			{
+				"id": "star_b",
+				"name": "Star B",
+				"kind": "star",
+				"mass_kg": 1.98847e30,
+				"radius_km": 695700.0,
+				"texture": "res://assets/textures/bodies/sun.jpg",
+				"color": "#FFB070",
+				"emissive": true,
+				"position_km": [-29919574.14, 0.0, 0.0],
+				"velocity_km_s": [0.0, -33.3008, 0.0]
+			},
+			{
+				"id": "circumbinary_planet",
+				"name": "Circumbinary planet",
+				"kind": "planet",
+				"mass_kg": 5.9722e24,
+				"radius_km": 6371.0,
+				"texture": "res://assets/textures/bodies/mars.jpg",
+				"color": "#FFFFFF",
+				"emissive": false,
+				"position_km": [0.0, 239356593.12, 0.0],
+				"velocity_km_s": [-33.3008, 0.0, 0.0]
+			}
+		]
+	},
+	{
+		"name": "Extra planet",
+		"description": "The solar system plus a Jupiter-mass planet on a circular orbit between Mars and Jupiter",
+		"solar_system": true,
+		"bodies": [
+			{
+				"id": "planet_x",
+				"name": "Planet X",
+				"kind": "planet",
+				"relative_to": "sun",
+				"mass_kg": 1.89813e27,
+				"radius_km": 69911.0,
+				"texture": "res://assets/textures/bodies/jupiter.jpg",
+				"color": "#BFD8FF",
+				"emissive": false,
+				"position_km": [0.0, -448793612.1, 0.0],
+				"velocity_km_s": [17.2047, 0.0, 0.0]
+			}
+		]
+	},
+	{
+		"name": "Rogue star flyby",
+		"description": "A half-solar-mass star sweeps past the outer planets about three years after loading",
+		"solar_system": true,
+		"bodies": [
+			{
+				"id": "rogue_star",
+				"name": "Rogue star",
+				"kind": "star",
+				"relative_to": "sun",
+				"mass_kg": 9.94235e29,
+				"radius_km": 320000.0,
+				"texture": "res://assets/textures/bodies/sun.jpg",
+				"color": "#FF9C6B",
+				"emissive": true,
+				"position_km": [-4664000029.6, -2692761672.6, 0.0],
+				"velocity_km_s": [45.0, 0.0, 0.0]
+			}
+		]
+	}
+]

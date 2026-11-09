@@ -2,7 +2,11 @@ class_name SandboxPanel
 extends PanelContainer
 
 signal place_toggled(active: bool)
-signal reset_pressed
+signal preset_load_requested(index: int)
+signal snapshot_save_requested
+signal snapshot_restore_requested
+signal integrator_selected(index: int)
+signal time_step_selected(seconds: float)
 signal remove_pressed
 signal focus_pressed
 signal freeze_toggled(frozen: bool)
@@ -19,6 +23,9 @@ const EARTH_MASS_KG := 5.9722e24
 const MASS_LOG_RANGE := Vector2(-10.0, 6.5)
 const RADIUS_LOG_RANGE := Vector2(-0.5, 6.5)
 const SLIDER_STEP := 0.01
+const INTEGRATOR_NAMES: Array[String] = ["Velocity Verlet", "RK4"]
+const TIME_STEP_NAMES: Array[String] = ["Adaptive", "1 hour", "6 hours", "1 day"]
+const TIME_STEP_SECONDS: Array[float] = [0.0, 3600.0, 21600.0, 86400.0]
 const TEMPLATES := [
 	{
 		"name": "Asteroid",
@@ -79,6 +86,11 @@ var _selected_color := ColorPickerButton.new()
 var _selected_color_row: HBoxContainer
 var _freeze_check := CheckButton.new()
 var _readout_label: Label
+var _simulation_box := VBoxContainer.new()
+var _integrator_control := SegmentedControl.new(INTEGRATOR_NAMES, "Numerical method used to advance the bodies")
+var _time_step_control := SegmentedControl.new(TIME_STEP_NAMES, "Adaptive shortens steps during close encounters; fixed steps show how step size affects accuracy")
+var _preset_option := OptionButton.new()
+var _restore_button: Button
 
 
 func _init() -> void:
@@ -99,16 +111,36 @@ func _init() -> void:
 	var content := Hud.scroll_content(_scroll)
 	_build_selected_section(content)
 	_build_new_body_section(content)
+	_build_simulation_section(content)
 	_notice_label = Hud.make_wrapped_label("", CONTENT_WIDTH, "WarningLabel")
 	_notice_label.visible = false
 	box.add_child(_notice_label)
 	box.add_child(HSeparator.new())
-	box.add_child(Hud.make_button("Reset to the solar system", func() -> void: reset_pressed.emit(), "Restore the planets at the current simulation date"))
+	_build_world_section(box)
 	_apply_template(1)
+
+
+func _ready() -> void:
+	Preferences.changed.connect(_sync_level)
+	_sync_level()
 
 
 func _process(_delta: float) -> void:
 	Hud.fit_scroll(self, _scroll, MIN_SCROLL_HEIGHT, SCROLL_HEIGHT)
+
+
+func set_presets(names: Array[String], descriptions: Array[String]) -> void:
+	_preset_option.clear()
+	for index in names.size():
+		_preset_option.add_item(names[index])
+		if index < descriptions.size():
+			_preset_option.set_item_tooltip(index, descriptions[index])
+	if not names.is_empty():
+		_preset_option.select(0)
+
+
+func set_snapshot_available(available: bool) -> void:
+	_restore_button.disabled = not available
 
 
 func new_body_spec() -> Dictionary:
@@ -235,6 +267,51 @@ func _build_selected_section(box: VBoxContainer) -> void:
 	buttons.add_child(remove)
 	_selected_box.add_child(buttons)
 	_selected_box.add_child(HSeparator.new())
+
+
+func _build_simulation_section(box: VBoxContainer) -> void:
+	box.add_child(_simulation_box)
+	_simulation_box.add_child(HSeparator.new())
+	_simulation_box.add_child(Hud.section_label("Simulation"))
+	_simulation_box.add_child(Hud.make_label("Integrator", "DimLabel"))
+	_integrator_control.select(0)
+	_integrator_control.selected.connect(func(index: int) -> void: integrator_selected.emit(index))
+	_simulation_box.add_child(_integrator_control)
+	_simulation_box.add_child(Hud.make_label("Time step", "DimLabel"))
+	_time_step_control.select(0)
+	_time_step_control.selected.connect(func(index: int) -> void: time_step_selected.emit(TIME_STEP_SECONDS[index]))
+	_simulation_box.add_child(_time_step_control)
+
+
+func _build_world_section(box: VBoxContainer) -> void:
+	var preset_row := HBoxContainer.new()
+	box.add_child(preset_row)
+	_preset_option.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_preset_option.focus_mode = Control.FOCUS_NONE
+	_preset_option.clip_text = true
+	preset_row.add_child(_preset_option)
+	preset_row.add_child(
+		Hud.make_button(
+			"Load",
+			func() -> void: preset_load_requested.emit(_preset_option.selected),
+			"Replace all bodies with this preset at the current simulation date"
+		)
+	)
+	var snapshot_row := HBoxContainer.new()
+	box.add_child(snapshot_row)
+	var save := Hud.make_button("Save snapshot", func() -> void: snapshot_save_requested.emit(), "Store every body as it is now")
+	save.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	snapshot_row.add_child(save)
+	_restore_button = Hud.make_button(
+		"Restore snapshot", func() -> void: snapshot_restore_requested.emit(), "Return to the last saved snapshot"
+	)
+	_restore_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_restore_button.disabled = true
+	snapshot_row.add_child(_restore_button)
+
+
+func _sync_level() -> void:
+	_simulation_box.visible = Preferences.is_scientist()
 
 
 func _add_slider(box: VBoxContainer, label: Label, slider: HSlider, range_values: Vector2) -> void:
