@@ -7,7 +7,7 @@ An interactive 3D solar system for exploration and gravity experiments. Built wi
 - **Explore**: fly through the solar system, select any body to read about it, and follow guided tours. Information is shown at two depth levels: Explorer for plain language and Scientist for full numeric data. Planets have atmosphere glow, Earth has a cloud layer, and an instanced asteroid belt orbits between Mars and Jupiter.
 - **Sandbox**: an N-body gravity simulator. Place bodies, launch them with a drag, then edit, freeze, or remove them and watch the orbits respond. Bodies that collide merge, and the merge conserves momentum. Load a preset (solar system, binary star, extra planet, rogue star flyby), or save a snapshot and restore it later. At Scientist level you can choose the integrator (Velocity Verlet or RK4) and the time step.
 
-Background music and sound effects play in both modes. Music, effects, and narration each have a volume slider in the settings panel, and music can be muted.
+The application opens on a main menu with Explore, Sandbox, Settings, Credits, and Quit. Settings covers window mode and resolution, graphics preset, render scale, orbit trail length, audio volumes, music mute, voice-over, and key bindings, and it is saved between sessions. Guided tours have synthesized voice-over at both depth levels. Captions are always shown, and the voice can be turned off separately. Esc opens a pause menu in both modes.
 
 ## Structure
 
@@ -25,8 +25,8 @@ Background music and sound effects play in both modes. Music, effects, and narra
 
 ## Run
 
-1. Open `godot/project.godot` in Godot 4.7.2, or run `godot --path godot` from the repository root.
-2. Press F5 to start.
+1. Open `godot/project.godot` in Godot 4.7.2 and press F5, or run `godot --path godot` from the repository root.
+2. The main menu opens first.
 
 ## Export
 
@@ -49,7 +49,7 @@ On Linux, mark the exported file as executable with `chmod +x`.
 | Right mouse + move | Look |
 | Mouse wheel | Adjust flight speed |
 | Shift | Boost |
-| Space or P | Pause |
+| Space or P | Pause or resume time |
 | R | Reverse time |
 | `[` and `]` | Slower and faster time |
 | L, O, G | Toggle labels, orbit lines, and distance rings |
@@ -59,6 +59,9 @@ On Linux, mark the exported file as executable with `chmod +x`.
 | F1 / F2 | Open Explore / open Sandbox |
 | F3 | Show or hide the controls help |
 | H | Hide the HUD |
+| Esc | Open the pause menu when nothing else is open or selected |
+
+Every key can be rebound in Settings → Controls.
 
 ### Explore
 
@@ -70,7 +73,7 @@ On Linux, mark the exported file as executable with `chmod +x`.
 | T | Toggle compressed and true scale |
 | N | Jump to the current date |
 | Left / Right, Enter | Previous / next tour step |
-| Esc | Exit a tour, close a menu, or clear the selection |
+| Esc | Exit a tour, close the tour menu, clear the selection, then open the pause menu |
 
 ### Sandbox
 
@@ -79,7 +82,7 @@ On Linux, mark the exported file as executable with `chmod +x`.
 | Place body, then click and drag on the orbital plane | Place a body and set its launch velocity |
 | Left click | Select a body |
 | Delete or Backspace | Remove the selected body |
-| Esc | Cancel placement or clear the selection |
+| Esc | Cancel placement, clear the selection, then open the pause menu |
 
 ## Team
 
@@ -87,11 +90,6 @@ Sepak Takraw — see `docs/PRD.md`, Appendix A.
 
 ## Status
 
-Weeks 1 to 3 of 4 are complete:
+All four weeks are complete. Every P0 item is done, as are the P1 items except F-06 (additional moons and dwarf planets); the P2 items F-15 (quiz) and F-27 (energy readouts) are not done. Linux and Windows release builds export as single files. The Windows build has been checked under Wine but not yet on native Windows.
 
-- Core simulation and rendering.
-- Explore mode: information panels, depth levels, labels, distance rings, guided tours, atmosphere and cloud shaders, a quality-tiered ring shader, and the asteroid belt.
-- Sandbox: N-body engine with placement, launch, edit, and remove; collision merging; presets and snapshots; selectable integrator and time step; body caps per quality preset.
-- Audio: audio manager with music, sound effects, and separate volume controls.
-
-See `docs/PRD.md` for the full plan.
+`docs/report.md` is the draft final report: architecture, graphics techniques, verification results, and screenshots. See `docs/PRD.md` for the full plan.
