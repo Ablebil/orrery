@@ -122,6 +122,11 @@ func reanchor(body_id: String, new_offset: PackedFloat64Array) -> void:
 	offset = new_offset.duplicate()
 
 
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_PAUSED:
+		_looking = false
+
+
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton:
 		_handle_mouse_button(event)

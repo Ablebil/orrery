@@ -8,6 +8,7 @@ signal faster_pressed
 signal now_pressed
 signal quality_selected(preset: int)
 signal mode_switch_pressed
+signal menu_pressed
 
 const OUTER_MARGIN := 14
 const SIDE_PANEL_WIDTH := 340
@@ -15,7 +16,6 @@ const HELP_HINT := "   |   F3 controls"
 const SPEED_LABEL_WIDTH := 92
 const BOTTOM_RESERVE := 60.0
 const SCROLLBAR_GUTTER := 12
-const VOLUME_VALUE_WIDTH := 40
 
 var left_column := VBoxContainer.new()
 var right_column := VBoxContainer.new()
@@ -39,9 +39,6 @@ var _trails_toggle: Button
 var _rings_toggle: Button
 var _mode_button := Button.new()
 var _settings_extras := VBoxContainer.new()
-var _volume_sliders: Array[HSlider] = []
-var _volume_values: Array[Label] = []
-var _music_mute_toggle: Button
 
 
 static func make_panel(parent: Control) -> VBoxContainer:
@@ -129,9 +126,7 @@ func _ready() -> void:
 	_build_footer()
 	_depth_control.selected.connect(func(index: int) -> void: Preferences.set_depth_level(index as Preferences.DepthLevel))
 	Preferences.changed.connect(_sync_preferences)
-	Audio.changed.connect(_sync_audio)
 	_sync_preferences()
-	_sync_audio()
 
 
 func toggle_visibility() -> void:
@@ -268,49 +263,15 @@ func _build_settings_panel() -> void:
 	_quality_option.item_selected.connect(func(index: int) -> void: quality_selected.emit(index))
 	_quality_option.custom_minimum_size = Vector2(120, 0)
 	box.add_child(HSeparator.new())
-	_build_audio_section(box)
+	var actions := HBoxContainer.new()
+	box.add_child(actions)
 	_mode_button.theme_type_variation = "AccentButton"
 	_mode_button.focus_mode = Control.FOCUS_NONE
 	_mode_button.visible = false
+	_mode_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_mode_button.pressed.connect(func() -> void: mode_switch_pressed.emit())
-	box.add_child(_mode_button)
-
-
-func _build_audio_section(box: VBoxContainer) -> void:
-	var header := HBoxContainer.new()
-	box.add_child(header)
-	var audio_label := section_label("Audio")
-	audio_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	header.add_child(audio_label)
-	_music_mute_toggle = make_toggle("Mute music", "Silence the background music", Audio.set_music_muted)
-	_music_mute_toggle.size_flags_horizontal = Control.SIZE_SHRINK_END
-	header.add_child(_music_mute_toggle)
-	var grid := GridContainer.new()
-	grid.columns = 3
-	box.add_child(grid)
-	_add_volume_row(grid, "Music", "Background music volume", Audio.set_music_volume)
-	_add_volume_row(grid, "Effects", "Sound effects volume", Audio.set_effects_volume)
-	_add_volume_row(grid, "Narration", "Voice-over volume", Audio.set_narration_volume)
-
-
-func _add_volume_row(grid: GridContainer, label: String, tooltip: String, setter: Callable) -> void:
-	grid.add_child(make_label(label, "DimLabel"))
-	var slider := HSlider.new()
-	slider.min_value = 0.0
-	slider.max_value = 100.0
-	slider.step = 1.0
-	slider.focus_mode = Control.FOCUS_NONE
-	slider.tooltip_text = tooltip
-	slider.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	slider.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	slider.value_changed.connect(func(value: float) -> void: setter.call(value / 100.0))
-	grid.add_child(slider)
-	var value_label := make_label("", "DimLabel")
-	value_label.custom_minimum_size = Vector2(VOLUME_VALUE_WIDTH, 0)
-	value_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	grid.add_child(value_label)
-	_volume_sliders.append(slider)
-	_volume_values.append(value_label)
+	actions.add_child(_mode_button)
+	actions.add_child(make_button("Menu", func() -> void: menu_pressed.emit(), "Pause menu, settings and credits (Esc)"))
 
 
 func _build_footer() -> void:
@@ -341,10 +302,3 @@ func _sync_preferences() -> void:
 	_trails_toggle.set_pressed_no_signal(Preferences.trails_visible)
 	_rings_toggle.set_pressed_no_signal(Preferences.rings_visible)
 
-
-func _sync_audio() -> void:
-	var volumes: Array[float] = [Audio.music_volume, Audio.effects_volume, Audio.narration_volume]
-	for index in _volume_sliders.size():
-		_volume_sliders[index].set_value_no_signal(volumes[index] * 100.0)
-		_volume_values[index].text = "%d%%" % roundi(volumes[index] * 100.0)
-	_music_mute_toggle.set_pressed_no_signal(Audio.music_muted)

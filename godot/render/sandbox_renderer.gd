@@ -83,7 +83,7 @@ func apply_quality() -> void:
 		visual.set_mesh_detail(profile["sphere_radial_segments"], profile["sphere_rings"])
 		visual.set_effects_detail(profile["full_effects"])
 	for trail: SandboxTrail in _trails.values():
-		trail.configure(profile["trail_points"], profile["trail_length_fraction"])
+		trail.configure(profile["trail_points"], Preferences.trail_length_fraction())
 
 
 func set_trails_visible(value: bool) -> void:
@@ -300,7 +300,7 @@ func _sync_bodies() -> void:
 		add_child(visual)
 		_visuals[body.id] = visual
 		var trail := SandboxTrail.new(body.color)
-		trail.configure(profile["trail_points"], profile["trail_length_fraction"])
+		trail.configure(profile["trail_points"], Preferences.trail_length_fraction())
 		trail.visible = _trails_visible
 		add_child(trail)
 		_trails[body.id] = trail

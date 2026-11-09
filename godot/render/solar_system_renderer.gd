@@ -53,7 +53,7 @@ func apply_quality() -> void:
 		visual.set_mesh_detail(profile["sphere_radial_segments"], profile["sphere_rings"])
 		visual.set_effects_detail(profile["full_effects"])
 	for trail: OrbitTrail in _trails.values():
-		trail.configure(profile["trail_points"], profile["trail_length_fraction"])
+		trail.configure(profile["trail_points"], Preferences.trail_length_fraction())
 	_belt.set_count(profile["asteroid_count"])
 
 

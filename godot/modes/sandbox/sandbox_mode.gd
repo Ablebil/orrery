@@ -366,8 +366,10 @@ func _cancel() -> void:
 	if _placing:
 		panel.set_placing(false)
 		_set_placing(false)
-	else:
+	elif _selected_id != "":
 		_clear_selection()
+	else:
+		_open_pause_menu()
 
 
 func _plane_point(screen_position: Vector2) -> DVec3:

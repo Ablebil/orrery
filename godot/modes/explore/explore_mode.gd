@@ -68,9 +68,11 @@ func _build_world() -> void:
 	_tour_panel.previous_pressed.connect(_tour_player.previous)
 	_tour_panel.next_pressed.connect(_tour_player.next)
 	_tour_panel.exit_pressed.connect(_tour_player.stop)
+	_tour_panel.replay_pressed.connect(_tour_player.replay)
 	model.update(clock.seconds)
 	renderer.compute_positions()
 	camera.focus_on(DEFAULT_FOCUS_ID, renderer.mapper.radius(model.get_body(DEFAULT_FOCUS_ID)), _toward_sun(DEFAULT_FOCUS_ID))
+	Audio.play_narration_once("welcome")
 
 
 func _process(delta: float) -> void:
@@ -126,6 +128,7 @@ func _on_preferences_changed() -> void:
 	_refresh_selection_content()
 	if _tour_player.active and not _current_step.is_empty():
 		_tour_panel.refresh_text(_current_step)
+	_tour_player.sync_narration()
 
 
 func _handle_left_click(event: InputEventMouseButton) -> void:
@@ -327,5 +330,7 @@ func _cancel() -> void:
 		_tour_player.stop()
 	elif _tour_menu.visible:
 		_tour_menu.visible = false
-	else:
+	elif _selected_id != "":
 		_clear_selection()
+	else:
+		_open_pause_menu()
