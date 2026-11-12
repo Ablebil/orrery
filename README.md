@@ -1,95 +1,194 @@
 # Orrery
 
-An interactive 3D solar system for exploration and gravity experiments. Built with Godot 4.7.2 and the Compatibility renderer.
+**An interactive 3D solar system for exploration and gravity experiments.**
 
-## Modes
+![Godot 4.7.2](https://img.shields.io/badge/Godot-4.7.2-478cbf?logo=godotengine&logoColor=white)
+![Renderer](https://img.shields.io/badge/renderer-Compatibility%20(OpenGL%203.3)-555)
+![Platforms](https://img.shields.io/badge/platforms-Windows%20%7C%20Linux-2ea44f)
+![Offline](https://img.shields.io/badge/runs-fully%20offline-6f42c1)
 
-- **Explore**: fly through the solar system, select any body to read about it, and follow guided tours. Information is shown at two depth levels: Explorer for plain language and Scientist for full numeric data. Planets have atmosphere glow, Earth has a cloud layer, and an instanced asteroid belt orbits between Mars and Jupiter.
-- **Sandbox**: an N-body gravity simulator. Place bodies, launch them with a drag, then edit, freeze, or remove them and watch the orbits respond. Bodies that collide merge, and the merge conserves momentum. Load a preset (solar system, binary star, extra planet, rogue star flyby), or save a snapshot and restore it later. At Scientist level you can choose the integrator (Velocity Verlet or RK4) and the time step.
+![Jupiter and the Galilean moons in Explore mode](.github/media/jupiter_system.jpg)
 
-The application opens on a main menu with Explore, Sandbox, Settings, Credits, and Quit. Settings covers window mode and resolution, graphics preset, render scale, orbit trail length, audio volumes, music mute, voice-over, and key bindings, and it is saved between sessions. Guided tours have synthesized voice-over at both depth levels. Captions are always shown, and the voice can be turned off separately. Esc opens a pause menu in both modes.
+Orrery models the Sun, the eight planets, the Moon, the Galilean moons, Titan, Ceres, Pluto, and the main asteroid belt in real time. Explore the system at any date and speed, follow narrated tours, test what you learned with quizzes, or switch to the Sandbox and build your own gravitational systems with a live N-body simulation. Every piece of content is bundled, so the application runs as a single offline executable.
 
-## Structure
+It is aimed at learners from elementary school to university. Every panel switches between two depth levels: **Explorer** for plain language and **Scientist** for full numeric data.
 
-| Path | Contents |
+## Contents
+
+- [Features](#features)
+- [Screenshots](#screenshots)
+- [Getting started](#getting-started)
+- [Controls](#controls)
+- [Project structure](#project-structure)
+- [Technical overview](#technical-overview)
+- [Offline tooling](#offline-tooling)
+- [Credits and licenses](#credits-and-licenses)
+- [Team](#team)
+
+## Features
+
+### Explore
+
+- **Bodies.** The Sun, 8 planets, 6 moons, 2 dwarf planets, and an instanced asteroid belt of up to 10,000 rocks.
+- **Accurate orbits.**
+  - Planets use JPL Keplerian elements.
+  - The Moon uses Meeus mean elements.
+  - The Galilean moons use JPL satellite mean elements.
+  - Ceres and Pluto use JPL Small-Body Database orbits.
+  - Positions of the moons and dwarf planets agree with JPL Horizons to within 0.4°.
+- **Time control.** Play, pause, reverse, change the speed, or jump to the current date.
+- **Two scales.** A compressed view keeps every world visible. True scale shows real sizes and distances.
+- **Body information.** Click any body for a summary, facts, and live orbital data at either depth level.
+- **Guided tours.** Four tours: Grand Tour, Earth and Moon, Sense of Scale, and Moons and Dwarf Planets. Each has captions and synthesized voice-over for both levels.
+- **Quizzes.** Every tour has a short quiz for each level, with an explanation after each answer. The quiz is offered when a tour ends and can be opened from the tour menu.
+
+### Sandbox
+
+- **Gravity simulation.** Mutual N-body gravity uses Velocity Verlet or RK4, with adaptive or fixed time steps and a per-frame CPU budget.
+- **Build systems.**
+  - Place a body and drag to launch it.
+  - Edit a body's mass, radius, and color, freeze it, or remove it.
+- **Collisions.** Bodies that touch merge with conserved mass and momentum. A swept contact test stops fast bodies from passing through each other.
+- **Presets.** Solar system, binary star, extra planet, and rogue star flyby. Snapshots save the current state and restore it later.
+- **Conservation readouts.** At the Scientist level, total energy and angular momentum are shown with their drift, to illustrate the numerical error of each integrator.
+
+### Application
+
+- **Menus.** A main menu, a pause menu, a credits screen, and settings that persist between sessions.
+- **Display and graphics settings.**
+  - Window mode and resolution.
+  - Low, Medium, or High quality preset, plus a render scale slider.
+  - Orbit trail length.
+- **Audio settings.** Separate volumes for music, effects, and narration, a music mute, and a voice-over toggle.
+- **Controls.** Every action can be rebound. Conflicting bindings are refused, and the on-screen help follows the active keys.
+- **Accessibility.**
+  - Interface size of 100%, 115%, or 130%.
+  - A colorblind-safe orbit palette (Okabe–Ito).
+  - Captions are always shown for narration, and nothing flashes.
+
+## Screenshots
+
+| | |
 |---|---|
-| `docs/` | Product requirements, technical docs, final report |
-| `godot/` | Godot project |
-| `tools/` | Offline tooling: narration (`tts/`), music and sound effects (`audio/`) |
-| `assets/` | Asset license register |
+| ![Main menu](.github/media/main_menu.jpg) | ![Earth](.github/media/earth.jpg) |
+| Main menu | Earth with city lights, clouds, and atmosphere |
+| ![Saturn](.github/media/saturn.jpg) | ![Pluto](.github/media/pluto.jpg) |
+| Saturn's rings and the orbit of Titan | Pluto from New Horizons mosaics |
+| ![Guided tours](.github/media/tours.jpg) | ![Quiz](.github/media/quiz.jpg) |
+| Guided tours with quizzes | Quiz feedback with explanations |
+| ![Sandbox](.github/media/sandbox.jpg) | |
+| Sandbox physics panel with conservation readouts | |
 
-## Requirements
+## Getting started
 
-- Godot 4.7.2 (standard build)
-- Windows 10/11 or Linux, 64-bit
+### System requirements
 
-## Run
+| Tier | Specification | Target |
+|---|---|---|
+| Minimum | 64-bit dual-core CPU, 4 GB RAM, integrated GPU with OpenGL 3.3, 1280 × 720 | 30 FPS on Low |
+| Recommended | Laptop from the last 5 years with integrated graphics, 8 GB RAM, 1920 × 1080 | 60 FPS on Medium |
+| High | Dedicated GPU | 60 FPS on High |
 
-1. Open `godot/project.godot` in Godot 4.7.2 and press F5, or run `godot --path godot` from the repository root.
-2. The main menu opens first.
+Supported platforms are Windows 10 and 11, and 64-bit Linux. No installation or internet connection is needed.
 
-## Export
+### Run from source
 
-Export templates for 4.7.2 must be installed. Then, from the repository root:
+1. Install [Godot 4.7.2](https://godotengine.org/download/archive/4.7.2-stable/) (standard build).
+2. Open `godot/project.godot` in the editor and press F5, or run this from the repository root:
+
+   ```
+   godot --path godot
+   ```
+
+### Export builds
+
+Install the Godot 4.7.2 export templates, then run from the repository root:
 
 ```
 godot --headless --path godot --export-release "Windows" ../builds/windows/Orrery.exe
 godot --headless --path godot --export-release "Linux" ../builds/linux/Orrery.x86_64
 ```
 
-On Linux, mark the exported file as executable with `chmod +x`.
+Each build is a single executable with the game data embedded. On Linux, mark it executable with `chmod +x Orrery.x86_64`.
 
 ## Controls
 
-### Both modes
+These are the default bindings. Every action can be rebound in **Settings → Controls**, and **F3** shows the current keys in the application.
 
-| Input | Action |
+| Action | Keys |
 |---|---|
-| W A S D, Q / E | Move, down / up |
-| Right mouse + move | Look |
-| Mouse wheel | Adjust flight speed |
-| Shift | Boost |
-| Space or P | Pause or resume time |
-| R | Reverse time |
-| `[` and `]` | Slower and faster time |
-| L, O, G | Toggle labels, orbit lines, and distance rings |
-| M | Switch between Explorer and Scientist levels |
-| 1 – 0 | Focus a body |
-| F | Release focus into free flight |
-| F1 / F2 | Open Explore / open Sandbox |
-| F3 | Show or hide the controls help |
-| H | Hide the HUD |
-| Esc | Open the pause menu when nothing else is open or selected |
+| Move, down / up | W A S D, Q / E |
+| Look | Right mouse button + move |
+| Flight speed / boost | Mouse wheel / Shift |
+| Select body / focus body | Left click / double click or 1 – 0 |
+| Next body / free flight | Tab / F |
+| Pause, reverse, slower / faster | Space or P, R, `[` / `]` |
+| Labels, orbit lines, distance rings | L, O, G |
+| Explorer / Scientist level | M |
+| Compressed / true scale, jump to now | T, N (Explore) |
+| Tour and quiz: previous / next | Left / Right or Enter |
+| Remove selected body | Delete or Backspace (Sandbox) |
+| Open Explore / Sandbox | F1 / F2 |
+| Controls help, hide interface | F3, H |
+| Cancel, then pause menu | Esc |
 
-Every key can be rebound in Settings → Controls.
+## Project structure
 
-### Explore
+```
+orrery/
+├── assets/LICENSES.md      Register of every third-party asset and data source
+├── docs/PRD.md             Product requirements document
+├── godot/                  Godot project
+│   ├── core/               Simulation, data catalogs, settings, input, audio (double precision)
+│   ├── data/               Bodies, info texts, tours, quizzes, presets, credits (JSON)
+│   ├── modes/              Main menu, Explore, Sandbox, shared scene base
+│   ├── render/             Renderers, camera, trails, asteroid belt, shaders
+│   ├── ui/                 Theme, HUD, panels, menus
+│   └── assets/             Textures, music, effects, narration
+└── tools/                  Offline generators for narration, audio, and textures
+```
 
-| Input | Action |
+## Technical overview
+
+| Area | Approach |
 |---|---|
-| Left click | Select a body and show its information |
-| Double click | Fly to a body |
-| Tab | Focus the next body |
-| T | Toggle compressed and true scale |
-| N | Jump to the current date |
-| Left / Right, Enter | Previous / next tour step |
-| Esc | Exit a tour, close the tour menu, clear the selection, then open the pause menu |
+| Precision | Simulation state in double precision. Rendering uses a floating origin, and distant objects are drawn on a depth shell to keep the near and far planes usable at solar system scale |
+| Orbits | Analytic Kepler propagation in Explore. Satellite elements are rotated from their Laplace or equator plane into the ecliptic |
+| Orientation | IAU pole and prime-meridian models for every body |
+| N-body | Velocity Verlet and RK4 with Plummer softening, an adaptive dynamical time step, swept collision detection, and Hill-sphere parent tracking |
+| Shaders | Day and night surfaces, Sun surface and halo, atmosphere scattering, clouds, Saturn's rings with an analytic planet shadow, and asteroids whose Keplerian motion runs on the GPU |
+| Graphics techniques | GPU instancing, dynamic trail meshes, HDR glow, a panoramic sky, and quality tiers |
+| Audio | Separate Music, Effects, and Narration buses. Music ducks while narration plays |
 
-### Sandbox
+## Offline tooling
 
-| Input | Action |
+All generated assets are committed, so these tools are only needed to regenerate them. Each tool runs with [uv](https://docs.astral.sh/uv/) and has its own README.
+
+| Tool | Output |
 |---|---|
-| Place body, then click and drag on the orbital plane | Place a body and set its launch velocity |
-| Left click | Select a body |
-| Delete or Backspace | Remove the selected body |
-| Esc | Cancel placement, clear the selection, then open the pause menu |
+| [`tools/tts`](tools/tts) | Tour and welcome narration with Kokoro-82M, voice `af_bella` |
+| [`tools/audio`](tools/audio) | Procedural background music and sound effects with fixed seeds |
+| [`tools/textures`](tools/textures) | Moon and dwarf planet textures from USGS global mosaics |
+
+## Credits and licenses
+
+- **Textures.**
+  - Planets, the Sun, the Moon, the rings, and the sky: [Solar System Scope](https://www.solarsystemscope.com/textures/), CC BY 4.0.
+  - Moons and dwarf planets: USGS Astrogeology and NASA mission mosaics, public domain.
+- **Orbital and physical data.** NASA JPL Solar System Dynamics, the IAU WGCCRE, and Meeus.
+- **Narration.** Synthesized offline with Kokoro-82M (Apache-2.0) through kokoro-onnx (MIT). No speech is synthesized at runtime.
+- **Music and sound effects.** Generated by the team.
+- **Engine.** [Godot Engine](https://godotengine.org/license), MIT.
+
+Every asset is recorded with its source, author, and license in [`assets/LICENSES.md`](assets/LICENSES.md), and listed on the in-app credits screen.
 
 ## Team
 
-Sepak Takraw — see `docs/PRD.md`, Appendix A.
+Team **Sepak Takraw**. Computer Graphics final project.
 
-## Status
-
-All four weeks are complete. Every P0 item is done, as are the P1 items except F-06 (additional moons and dwarf planets); the P2 items F-15 (quiz) and F-27 (energy readouts) are not done. Linux and Windows release builds export as single files. The Windows build has been checked under Wine but not yet on native Windows.
-
-`docs/report.md` is the draft final report: architecture, graphics techniques, verification results, and screenshots. See `docs/PRD.md` for the full plan.
+| Name | Student ID | Role |
+|---|---|---|
+| Muhamad Fahry Pratama Putra | 245150207111046 | Team Lead |
+| Muhammad Atha Tsaqif | 245150201111002 | Member |
+| Muhammad Hafizh Faiqunnabil | 245150201111031 | Member |
+| Alexander William Sinjaya | 245150200111044 | Member |
