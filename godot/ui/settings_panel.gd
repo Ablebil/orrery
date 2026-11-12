@@ -16,6 +16,11 @@ const CAPTURE_HINT := "Click an action, then press a key. Esc cancels."
 const CONFLICT_TEXT := "%s is already used for %s. Press another key, or Esc to cancel."
 const DISPLAY_NOTE := "Resolution applies in windowed mode. Fullscreen uses the screen resolution."
 const UI_SCALE_NOTE := "Larger sizes suit high-resolution screens and reading from a distance. 130% works best at 1600 x 900 or above."
+const POINTER_NOTE := (
+	"Drag with the left button to orbit the focused body. Scroll left or right to orbit around it. "
+	+ "Auto treats smooth touchpad scrolling as orbit and mouse wheel steps as zoom. "
+	+ "Pinch or Ctrl + scroll always zooms, and Shift + scroll changes flight speed."
+)
 const GRAPHICS_NOTE := (
 	"Lower presets and render scales run faster on older devices. "
 	+ "Changing the preset resets the render scale to the preset default."
@@ -33,6 +38,7 @@ var _render_scale_value := Label.new()
 var _trail_length := SegmentedControl.new(Preferences.TRAIL_LENGTH_NAMES)
 var _orbit_palette := SegmentedControl.new(Preferences.ORBIT_PALETTE_NAMES, "Colorblind-safe colors use the Okabe-Ito palette")
 var _ui_scale := SegmentedControl.new(Quality.UI_SCALE_NAMES, "Size of text and panels")
+var _scroll_mode := SegmentedControl.new(Preferences.SCROLL_MODE_NAMES, "What vertical scrolling does")
 var _volume_sliders: Array[HSlider] = []
 var _volume_values: Array[Label] = []
 var _music_mute_toggle: Button
@@ -214,6 +220,12 @@ func _add_volume_row(grid: GridContainer, label: String, tooltip: String, setter
 
 
 func _build_controls_page(page: VBoxContainer) -> void:
+	page.add_child(Hud.section_label("Mouse and touchpad"))
+	_add_row(page, "Vertical scroll", _scroll_mode)
+	_scroll_mode.selected.connect(func(index: int) -> void: Preferences.set_scroll_mode(index as Preferences.ScrollMode))
+	page.add_child(Hud.make_wrapped_label(POINTER_NOTE, NOTE_WIDTH, "DimLabel"))
+	page.add_child(HSeparator.new())
+	page.add_child(Hud.section_label("Keyboard"))
 	var header := HBoxContainer.new()
 	page.add_child(header)
 	var hint := Hud.make_label(CAPTURE_HINT, "DimLabel")
@@ -267,6 +279,7 @@ func _sync_graphics() -> void:
 	_render_scale_value.text = "%d%%" % roundi(Quality.render_scale * 100.0)
 	_trail_length.select(Preferences.trail_length)
 	_orbit_palette.select(Preferences.orbit_palette)
+	_scroll_mode.select(Preferences.scroll_mode)
 
 
 func _sync_audio() -> void:
