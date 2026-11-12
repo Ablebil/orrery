@@ -12,6 +12,8 @@ const MIN_RENDER_SCALE := 0.5
 const MAX_RENDER_SCALE := 1.0
 const DEFAULT_WINDOW_SIZE := Vector2i(1280, 720)
 const WINDOW_SIZES: Array[Vector2i] = [Vector2i(1280, 720), Vector2i(1600, 900), Vector2i(1920, 1080), Vector2i(2560, 1440)]
+const UI_SCALES: Array[float] = [1.0, 1.15, 1.3]
+const UI_SCALE_NAMES: Array[String] = ["100%", "115%", "130%"]
 
 const PROFILES := {
 	Preset.LOW:
@@ -56,6 +58,7 @@ var preset: Preset = Preset.MEDIUM
 var render_scale: float = PROFILES[Preset.MEDIUM]["render_scale"]
 var fullscreen := false
 var window_size := DEFAULT_WINDOW_SIZE
+var ui_scale := 1.0
 
 
 func _ready() -> void:
@@ -94,6 +97,15 @@ func set_fullscreen(value: bool) -> void:
 	display_changed.emit()
 
 
+func set_ui_scale(value: float) -> void:
+	if is_equal_approx(value, ui_scale):
+		return
+	ui_scale = value
+	_save()
+	_apply_window()
+	display_changed.emit()
+
+
 func set_window_size(value: Vector2i) -> void:
 	if value == window_size:
 		return
@@ -116,6 +128,7 @@ func available_window_sizes() -> Array[Vector2i]:
 
 func _apply_window() -> void:
 	var window := get_window()
+	window.content_scale_factor = ui_scale
 	if fullscreen:
 		window.mode = Window.MODE_FULLSCREEN
 		return
@@ -134,6 +147,8 @@ func _load() -> void:
 	render_scale = clampf(config.get_value(CONFIG_SECTION, "render_scale", default_scale), MIN_RENDER_SCALE, MAX_RENDER_SCALE)
 	fullscreen = config.get_value(CONFIG_SECTION, "fullscreen", fullscreen)
 	window_size = config.get_value(CONFIG_SECTION, "window_size", window_size)
+	var stored_scale: float = config.get_value(CONFIG_SECTION, "ui_scale", ui_scale)
+	ui_scale = stored_scale if UI_SCALES.has(stored_scale) else 1.0
 
 
 func _save() -> void:
@@ -143,4 +158,5 @@ func _save() -> void:
 	config.set_value(CONFIG_SECTION, "render_scale", render_scale)
 	config.set_value(CONFIG_SECTION, "fullscreen", fullscreen)
 	config.set_value(CONFIG_SECTION, "window_size", window_size)
+	config.set_value(CONFIG_SECTION, "ui_scale", ui_scale)
 	config.save(CONFIG_PATH)
