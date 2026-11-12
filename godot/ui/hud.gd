@@ -12,7 +12,7 @@ signal menu_pressed
 
 const OUTER_MARGIN := 14
 const SIDE_PANEL_WIDTH := 340
-const HELP_HINT := "   |   F3 controls"
+const HELP_HINT := "   |   %s controls"
 const SPEED_LABEL_WIDTH := 92
 const BOTTOM_RESERVE := 60.0
 const SCROLLBAR_GUTTER := 12
@@ -157,7 +157,7 @@ func set_now_visible(value: bool) -> void:
 
 
 func set_status(text: String) -> void:
-	_status_label.text = text if _help_panel.visible else text + HELP_HINT
+	_status_label.text = text if _help_panel.visible else text + HELP_HINT % InputBindings.keys_text("toggle_help")
 
 
 func set_help(text: String) -> void:

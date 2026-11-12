@@ -8,10 +8,15 @@ const MOON_LABEL_HIDE_DISTANCE := 40.0
 const SCREEN_MARGIN := 40.0
 const SCALE_NAMES: Array[String] = ["Compressed", "True scale"]
 const HELP_TEXT := (
-	"WASD move   Q/E down/up   Shift boost   Right mouse look   Wheel speed   Click select   Double-click focus\n"
-	+ "Space pause   R reverse   [ ] time speed   N now   T scale   L labels   O orbit lines   G distance rings   M level\n"
-	+ "1-0 focus body   Tab next   F free flight   F2 sandbox   F3 help   H hide"
+	"{move_forward}/{move_left}/{move_back}/{move_right} move   {move_down}/{move_up} down/up   {boost} boost   "
+	+ "Right mouse look   Wheel speed   Click select   Double-click focus\n"
+	+ "{time_pause} pause   {time_reverse} reverse   {time_slower} {time_faster} time speed   {time_now} now   "
+	+ "{scale_toggle} scale   {toggle_labels} labels   {toggle_trails} orbit lines   {toggle_grid} distance rings   "
+	+ "{toggle_level} level\n"
+	+ "1-0 focus body   {focus_next} next   {focus_release} free flight   {mode_sandbox} sandbox   "
+	+ "{toggle_help} help   {toggle_hud} hide   Esc menu"
 )
+const MODE_SWITCH_TEXT := "Open Sandbox ({mode_sandbox})"
 
 var model: SolarSystemModel
 var renderer := SolarSystemRenderer.new()
@@ -59,8 +64,7 @@ func _build_world() -> void:
 	tours_chip.add_child(_tours_button)
 	hud.left_column.add_child(tours_chip)
 	hud.left_column.move_child(tours_chip, 1)
-	hud.set_help(HELP_TEXT)
-	hud.set_mode_switch("Open Sandbox (F2)")
+	set_key_help(HELP_TEXT, MODE_SWITCH_TEXT)
 	for index in mini(model.bodies.size(), InputBindings.FOCUS_KEYS.size()):
 		_focus_actions.append(StringName("focus_body_%d" % index))
 	_info_panel.focus_requested.connect(_fly_to)

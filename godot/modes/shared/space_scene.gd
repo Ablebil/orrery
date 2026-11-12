@@ -18,6 +18,9 @@ var hud := Hud.new()
 var pause_menu := PauseMenu.new()
 var space_environment := make_space_environment()
 
+var _help_template := ""
+var _mode_switch_template := ""
+
 
 func _ready() -> void:
 	var world_environment := WorldEnvironment.new()
@@ -40,6 +43,7 @@ func _ready() -> void:
 	Quality.display_changed.connect(_apply_render_scale)
 	Preferences.changed.connect(_on_preferences_changed)
 	Preferences.trail_length_changed.connect(_on_quality_changed)
+	InputBindings.changed.connect(_apply_key_help)
 	clock.jump_to_now()
 	_build_world()
 	_apply_quality()
@@ -90,6 +94,17 @@ static func make_space_environment() -> Environment:
 	environment.glow_bloom = GLOW_BLOOM
 	environment.glow_hdr_threshold = GLOW_THRESHOLD
 	return environment
+
+
+func set_key_help(help_template: String, mode_switch_template: String) -> void:
+	_help_template = help_template
+	_mode_switch_template = mode_switch_template
+	_apply_key_help()
+
+
+func _apply_key_help() -> void:
+	hud.set_help(InputBindings.describe(_help_template))
+	hud.set_mode_switch(InputBindings.describe(_mode_switch_template))
 
 
 func pick_tolerance_angle() -> float:

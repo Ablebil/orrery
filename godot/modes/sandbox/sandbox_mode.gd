@@ -13,10 +13,14 @@ const INITIAL_OFFSET := Vector3(0.0, 3.0e5, 4.0e5)
 const DEFAULT_ANCHOR_ID := "sun"
 const KM_PER_AU := 149597870.7
 const HELP_TEXT := (
-	"WASD move   Q/E down/up   Shift boost   Right mouse look   Wheel speed   Click select\n"
-	+ "Place body: click the orbital plane, drag to set velocity, release to launch   Esc cancel   Del remove\n"
-	+ "Space pause   R reverse   [ ] time speed   L labels   O orbit lines   G distance rings   M level   1-0 focus body   F2/F1 switch mode   F3 help   H hide"
+	"{move_forward}/{move_left}/{move_back}/{move_right} move   {move_down}/{move_up} down/up   {boost} boost   "
+	+ "Right mouse look   Wheel speed   Click select\n"
+	+ "Place body: click the orbital plane, drag to set velocity, release to launch   Esc cancel   {delete_body} remove\n"
+	+ "{time_pause} pause   {time_reverse} reverse   {time_slower} {time_faster} time speed   {toggle_labels} labels   "
+	+ "{toggle_trails} orbit lines   {toggle_grid} distance rings   {toggle_level} level   1-0 focus body   "
+	+ "{mode_explore} explore   {toggle_help} help   {toggle_hud} hide"
 )
+const MODE_SWITCH_TEXT := "Open Explore ({mode_explore})"
 
 var model: SolarSystemModel
 var world: SandboxWorld
@@ -49,8 +53,7 @@ func _build_world() -> void:
 	add_child(renderer)
 	hud.add_overlay(_labels)
 	hud.left_column.add_child(panel)
-	hud.set_help(HELP_TEXT)
-	hud.set_mode_switch("Open Explore (F1)")
+	set_key_help(HELP_TEXT, MODE_SWITCH_TEXT)
 	hud.set_now_visible(false)
 	hud.set_depth_visible(true)
 	for index in 10:
