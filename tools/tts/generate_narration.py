@@ -25,6 +25,9 @@ SPEECH_REPLACEMENTS = (
     (re.compile(r"(\d)\s*km\b"), r"\1 kilometers"),
     (re.compile(r"(\d)\s*g/cm3\b"), r"\1 grams per cubic centimeter"),
     (re.compile(r"(\d)\s+s\b"), r"\1 seconds"),
+    (re.compile(r"(\d)\s*W/m2\b"), r"\1 watts per square meter"),
+    (re.compile(r"(\d)\s*K\b"), r"\1 kelvin"),
+    (re.compile(r"\b(\d+):(\d+):(\d+)\b"), r"\1 to \2 to \3"),
     (re.compile(r"\b(\d+):(\d+)\b"), r"\1 to \2"),
     (re.compile(r"\bbarycenter\b"), "bary center"),
 )
