@@ -141,5 +141,55 @@
 				"text_scientist": "Semi-major axis 30.07 AU, so the one-way light time from the Sun is about 4.2 hours."
 			}
 		]
+	},
+	{
+		"id": "moons_and_dwarfs",
+		"title": "Moons and Dwarf Planets",
+		"summary": "Meet volcanic Io, ocean world Europa, giant Ganymede, hazy Titan, and the dwarf planets Ceres and Pluto.",
+		"steps": [
+			{
+				"target": "io",
+				"title": "Io",
+				"scale": "compressed",
+				"distance_radii": 4.0,
+				"text": "Io is the most volcanic world we know. Jupiter's gravity squeezes it on every orbit, and that heat feeds hundreds of active volcanoes.",
+				"text_scientist": "Io's forced eccentricity comes from the 1:2:4 Laplace resonance with Europa and Ganymede. Tidal dissipation yields a global heat flow of about 2 W/m2."
+			},
+			{
+				"target": "europa",
+				"title": "Europa",
+				"distance_radii": 4.0,
+				"text": "Under Europa's cracked ice lies a salty ocean with more water than all of Earth's oceans. It is one of the best places to search for life.",
+				"text_scientist": "Galileo measured an induced magnetic field that points to a conducting ocean beneath an ice shell roughly 15 to 25 km thick."
+			},
+			{
+				"target": "ganymede",
+				"title": "Ganymede",
+				"distance_radii": 4.0,
+				"text": "Ganymede is the largest moon in the solar system, wider than the planet Mercury. It is the only moon with its own magnetic field.",
+				"text_scientist": "With a radius of 2,634 km and a normalized moment of inertia near 0.31, Ganymede has an iron core whose dynamo creates a small magnetosphere."
+			},
+			{
+				"target": "titan",
+				"title": "Titan",
+				"distance_radii": 4.0,
+				"text": "Titan, Saturn's biggest moon, has a thick orange sky. Rain made of methane fills its rivers, lakes, and seas.",
+				"text_scientist": "Titan's nitrogen atmosphere reaches about 1.5 bar at the surface, where 94 K temperatures let methane and ethane exist as liquids."
+			},
+			{
+				"target": "ceres",
+				"title": "Ceres",
+				"distance_radii": 4.0,
+				"text": "Ceres is the biggest object in the asteroid belt and the closest dwarf planet to the Sun. Its bright spots are salt left behind by salty water.",
+				"text_scientist": "Dawn found sodium carbonate faculae in Occator crater, deposited from brine that reached the surface from below the crust."
+			},
+			{
+				"target": "pluto",
+				"title": "Pluto",
+				"distance_radii": 4.0,
+				"text": "Pluto lives far beyond Neptune and takes 248 years to circle the Sun. Its heart-shaped plain is a giant field of frozen nitrogen.",
+				"text_scientist": "Pluto orbits in a 3:2 resonance with Neptune. Sputnik Planitia is a convecting nitrogen-ice glacier about 1,000 km across."
+			}
+		]
 	}
 ]
