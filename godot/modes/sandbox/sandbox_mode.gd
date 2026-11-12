@@ -14,7 +14,7 @@ const DEFAULT_ANCHOR_ID := "sun"
 const KM_PER_AU := 149597870.7
 const HELP_TEXT := (
 	"{move_forward}/{move_left}/{move_back}/{move_right} move   {move_down}/{move_up} down/up   {boost} boost   "
-	+ "Right mouse look   Wheel speed   Click select\n"
+	+ "Drag or scroll orbit   Pinch or Ctrl+scroll zoom   Shift+scroll speed   Right mouse look   Click select\n"
 	+ "Place body: click the orbital plane, drag to set velocity, release to launch   Esc cancel   {delete_body} remove\n"
 	+ "{time_pause} pause   {time_reverse} reverse   {time_slower} {time_faster} time speed   {toggle_labels} labels   "
 	+ "{toggle_trails} orbit lines   {toggle_grid} distance rings   {toggle_level} level   1-0 focus body   "
@@ -362,12 +362,14 @@ func _distance_text(distance_km: float) -> String:
 
 func _set_placing(active: bool) -> void:
 	_placing = active
+	camera.drag_orbit_enabled = not active
 	if not active:
 		_cancel_placement()
 
 
 func _cancel_placement() -> void:
 	_dragging = false
+	camera.drag_orbit_enabled = not _placing
 	renderer.set_preview(false)
 	panel.set_launch_text(SandboxPanel.DEFAULT_LAUNCH_HINT)
 
