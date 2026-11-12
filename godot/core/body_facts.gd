@@ -80,7 +80,8 @@ static func _scientist_rows(body: BodyDefinition, parent: BodyDefinition, distan
 		var semi_major_km: float = body.orbit.elements[OrbitModel.SEMI_MAJOR] * Astro.AU_KM
 		rows.append(["Semi-major axis", _precise_distance(semi_major_km, parent)])
 		rows.append(["Eccentricity", "%.4f" % body.orbit.elements[OrbitModel.ECCENTRICITY]])
-		rows.append(["Inclination", "%.2f deg" % absf(body.orbit.elements[OrbitModel.INCLINATION])])
+		var inclination_label := _inclination_label(body, parent)
+		rows.append([inclination_label, "%.2f deg" % absf(body.orbit.elements[OrbitModel.INCLINATION])])
 		rows.append(["Orbital period", "%s d" % format_number(orbital_period_days(body), 3)])
 		rows.append(["Current distance", _precise_distance(distance_km, parent)])
 		rows.append(["Orbital speed", "%.2f km/s" % speed_km_s])
@@ -139,3 +140,12 @@ static func _ratio(value: float) -> String:
 	if value >= 1.0:
 		return "%.1f" % value
 	return "%.2f" % value
+
+
+static func _inclination_label(body: BodyDefinition, parent: BodyDefinition) -> String:
+	match body.orbit.reference_plane:
+		"laplace":
+			return "Inclination to Laplace plane"
+		"equator":
+			return "Inclination to %s's equator" % parent.display_name
+	return "Inclination"

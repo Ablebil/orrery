@@ -8,15 +8,22 @@ const MOON_LABEL_HIDE_DISTANCE := 40.0
 const SCREEN_MARGIN := 40.0
 const SCALE_NAMES: Array[String] = ["Compressed", "True scale"]
 const HELP_TEXT := (
-	"WASD move   Q/E down/up   Shift boost   Right mouse look   Wheel speed   Click select   Double-click focus\n"
-	+ "Space pause   R reverse   [ ] time speed   N now   T scale   L labels   O orbit lines   G distance rings   M level\n"
-	+ "1-0 focus body   Tab next   F free flight   F2 sandbox   F3 help   H hide"
+	"{move_forward}/{move_left}/{move_back}/{move_right} move   {move_down}/{move_up} down/up   {boost} boost   "
+	+ "Drag or scroll orbit   Pinch or Ctrl+scroll zoom   Shift+scroll speed   Right mouse look   Click select   Double-click focus\n"
+	+ "{time_pause} pause   {time_reverse} reverse   {time_slower} {time_faster} time speed   {time_now} now   "
+	+ "{scale_toggle} scale   {toggle_labels} labels   {toggle_trails} orbit lines   {toggle_grid} distance rings   "
+	+ "{toggle_level} level\n"
+	+ "1-0 focus body   {focus_next} next   {focus_release} free flight   {mode_sandbox} sandbox   "
+	+ "{toggle_help} help   {toggle_hud} hide   Esc menu"
 )
+const MODE_SWITCH_TEXT := "Open Sandbox ({mode_sandbox})"
 
 var model: SolarSystemModel
 var renderer := SolarSystemRenderer.new()
 
 var _info_catalog: BodyInfoCatalog
+var _quiz_catalog: QuizCatalog
+var _quiz_panel := QuizPanel.new()
 var _labels := BodyLabels.new()
 var _info_panel := InfoPanel.new()
 var _tour_panel := TourPanel.new()
@@ -36,13 +43,15 @@ func _build_world() -> void:
 	model = SolarSystemModel.new(BodyCatalog.load_bodies())
 	_info_catalog = BodyInfoCatalog.load_catalog()
 	_tours = TourCatalog.load_tours()
+	_quiz_catalog = QuizCatalog.load_catalog()
 	add_child(renderer)
 	renderer.setup(model)
 	hud.add_overlay(_labels)
 	hud.right_column.add_child(_info_panel)
 	hud.left_column.add_child(_tour_menu)
 	hud.bottom_center.add_child(_tour_panel)
-	_tour_menu.populate(_tours)
+	hud.bottom_center.add_child(_quiz_panel)
+	_tour_menu.populate(_tours, _quiz_tour_ids())
 	hud.add_setting(HSeparator.new())
 	hud.add_setting(Hud.section_label("Scale"))
 	hud.add_setting(_scale_control)
@@ -55,22 +64,25 @@ func _build_world() -> void:
 	tours_chip.add_child(_tours_button)
 	hud.left_column.add_child(tours_chip)
 	hud.left_column.move_child(tours_chip, 1)
-	hud.set_help(HELP_TEXT)
-	hud.set_mode_switch("Open Sandbox (F2)")
-	for index in model.bodies.size():
+	set_key_help(HELP_TEXT, MODE_SWITCH_TEXT)
+	for index in mini(model.bodies.size(), InputBindings.FOCUS_KEYS.size()):
 		_focus_actions.append(StringName("focus_body_%d" % index))
 	_info_panel.focus_requested.connect(_fly_to)
 	_info_panel.close_requested.connect(_clear_selection)
 	_tour_menu.tour_selected.connect(_start_tour)
+	_tour_menu.quiz_selected.connect(_start_quiz)
 	_tour_menu.close_requested.connect(_toggle_tour_menu)
 	_tour_player.step_changed.connect(_on_tour_step)
 	_tour_player.stopped.connect(_on_tour_stopped)
+	_tour_player.finished.connect(_on_tour_finished)
 	_tour_panel.previous_pressed.connect(_tour_player.previous)
 	_tour_panel.next_pressed.connect(_tour_player.next)
 	_tour_panel.exit_pressed.connect(_tour_player.stop)
+	_tour_panel.replay_pressed.connect(_tour_player.replay)
 	model.update(clock.seconds)
 	renderer.compute_positions()
 	camera.focus_on(DEFAULT_FOCUS_ID, renderer.mapper.radius(model.get_body(DEFAULT_FOCUS_ID)), _toward_sun(DEFAULT_FOCUS_ID))
+	Audio.play_narration_once("welcome")
 
 
 func _process(delta: float) -> void:
@@ -104,7 +116,10 @@ func _unhandled_input(event: InputEvent) -> void:
 	elif event.is_action_pressed("focus_release"):
 		camera.release_anchor(camera.world_position(_anchor_position()))
 	elif event.is_action_pressed("tour_next"):
-		_tour_player.next()
+		if _quiz_panel.is_open():
+			_quiz_panel.advance()
+		else:
+			_tour_player.next()
 	elif event.is_action_pressed("tour_previous"):
 		_tour_player.previous()
 	elif event.is_action_pressed("cancel"):
@@ -122,10 +137,12 @@ func _on_quality_changed() -> void:
 
 func _on_preferences_changed() -> void:
 	renderer.set_trails_visible(Preferences.trails_visible)
+	renderer.apply_trail_colors()
 	renderer.set_rings_visible(Preferences.rings_visible)
 	_refresh_selection_content()
 	if _tour_player.active and not _current_step.is_empty():
 		_tour_panel.refresh_text(_current_step)
+	_tour_player.sync_narration()
 
 
 func _handle_left_click(event: InputEventMouseButton) -> void:
@@ -218,12 +235,8 @@ func _fly_to(body_id: String, radii: float = CameraRig.FOCUS_DISTANCE_RADII) -> 
 
 
 func _focus_next() -> void:
-	var next_index := 0
-	for index in model.bodies.size():
-		if model.bodies[index].id == camera.anchor_id:
-			next_index = (index + 1) % model.bodies.size()
-			break
-	_focus_body(model.bodies[next_index].id)
+	var order := model.cycle_order()
+	_focus_body(order[(order.find(camera.anchor_id) + 1) % order.size()])
 
 
 func _other_scale_mode() -> ScaleMapper.Mode:
@@ -300,6 +313,7 @@ func _start_tour(tour_id: String) -> void:
 	for tour in _tours:
 		if tour["id"] == tour_id:
 			_tour_menu.visible = false
+			_quiz_panel.close_quiz()
 			_clear_selection()
 			_tour_player.start(tour)
 			return
@@ -323,9 +337,36 @@ func _on_tour_stopped() -> void:
 
 
 func _cancel() -> void:
-	if _tour_player.active:
+	if _quiz_panel.is_open():
+		_quiz_panel.close_quiz()
+	elif _tour_player.active:
 		_tour_player.stop()
 	elif _tour_menu.visible:
 		_tour_menu.visible = false
-	else:
+	elif _selected_id != "":
 		_clear_selection()
+	else:
+		_open_pause_menu()
+
+
+func _quiz_tour_ids() -> Array[String]:
+	var ids: Array[String] = []
+	for tour in _tours:
+		if _quiz_catalog.has_quiz(tour["id"]):
+			ids.append(tour["id"])
+	return ids
+
+
+func _start_quiz(tour_id: String) -> void:
+	for tour in _tours:
+		if tour["id"] == tour_id:
+			_tour_menu.visible = false
+			_tour_player.stop()
+			hud.set_help_visible(false)
+			_quiz_panel.start(tour["title"], _quiz_catalog.questions(tour_id, Preferences.is_scientist()))
+			return
+
+
+func _on_tour_finished(tour: Dictionary) -> void:
+	if _quiz_catalog.has_quiz(tour["id"]):
+		_quiz_panel.offer(tour["title"], _quiz_catalog.questions(tour["id"], Preferences.is_scientist()))

@@ -24,6 +24,7 @@ var _halo := MeshInstance3D.new()
 var _rings := ReferenceRings.new()
 var _ring_radii: Array[float] = []
 var _scratch := PackedFloat64Array([0.0, 0.0, 0.0])
+var _belt: AsteroidBelt
 
 
 func setup(model: SolarSystemModel) -> void:
@@ -32,6 +33,7 @@ func setup(model: SolarSystemModel) -> void:
 		var visual := BodyVisual.new(body.texture_path, body.night_texture_path, body.emissive)
 		if body.ring_texture_path != "":
 			visual.add_rings(body.ring_inner_km / body.radius_km, body.ring_outer_km / body.radius_km, body.ring_texture_path)
+		visual.add_atmosphere_layers(body)
 		add_child(visual)
 		_visuals[body.id] = visual
 		if body.orbit != null:
@@ -39,6 +41,9 @@ func setup(model: SolarSystemModel) -> void:
 			add_child(trail)
 			_trails[body.id] = trail
 	_build_halo()
+	apply_trail_colors()
+	_belt = AsteroidBelt.new(Astro.GRAVITATIONAL_CONSTANT_KM * _model.bodies[0].mass_kg)
+	add_child(_belt)
 	add_child(_rings)
 	apply_quality()
 
@@ -47,8 +52,10 @@ func apply_quality() -> void:
 	var profile := Quality.profile()
 	for visual: BodyVisual in _visuals.values():
 		visual.set_mesh_detail(profile["sphere_radial_segments"], profile["sphere_rings"])
+		visual.set_effects_detail(profile["full_effects"])
 	for trail: OrbitTrail in _trails.values():
-		trail.configure(profile["trail_points"], profile["trail_length_fraction"])
+		trail.configure(profile["trail_points"], Preferences.trail_length_fraction())
+	_belt.set_count(profile["asteroid_count"])
 
 
 func compute_positions() -> void:
@@ -88,6 +95,13 @@ func ring_label_entries() -> Array:
 func set_trails_visible(value: bool) -> void:
 	for trail: OrbitTrail in _trails.values():
 		trail.visible = value
+
+
+func apply_trail_colors() -> void:
+	var order := _model.cycle_order()
+	for id: String in _trails:
+		var trail: OrbitTrail = _trails[id]
+		trail.trail_color = Preferences.orbit_color(trail.definition.color, order.find(id))
 
 
 func is_occluded(id: String) -> bool:
@@ -163,6 +177,10 @@ func update(camera_position: PackedFloat64Array, simulation_seconds: float) -> v
 			_update_trail(body, camera_position, simulation_seconds, shell)
 	_place_halo(camera_position, sun_position, shell)
 	_update_rings(camera_position, sun_position, shell)
+	var sun_offset := Vector3(
+		sun_position[0] - camera_position[0], sun_position[1] - camera_position[1], sun_position[2] - camera_position[2]
+	)
+	_belt.update(sun_offset, shell, simulation_seconds, mapper.mode)
 
 
 func _shell_shrink(distance: float, shell: float) -> float:

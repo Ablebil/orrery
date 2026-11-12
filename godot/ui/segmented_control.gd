@@ -25,3 +25,7 @@ func _init(options: Array[String], tooltip: String = "") -> void:
 func select(index: int) -> void:
 	for button_index in _buttons.size():
 		_buttons[button_index].set_pressed_no_signal(button_index == index)
+
+
+func set_option_visible(index: int, value: bool) -> void:
+	_buttons[index].visible = value

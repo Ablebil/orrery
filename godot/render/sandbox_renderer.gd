@@ -81,14 +81,23 @@ func apply_quality() -> void:
 	var profile := Quality.profile()
 	for visual: BodyVisual in _visuals.values():
 		visual.set_mesh_detail(profile["sphere_radial_segments"], profile["sphere_rings"])
+		visual.set_effects_detail(profile["full_effects"])
 	for trail: SandboxTrail in _trails.values():
-		trail.configure(profile["trail_points"], profile["trail_length_fraction"])
+		trail.configure(profile["trail_points"], Preferences.trail_length_fraction())
 
 
 func set_trails_visible(value: bool) -> void:
 	_trails_visible = value
 	for trail: SandboxTrail in _trails.values():
 		trail.visible = value
+
+
+func apply_trail_colors() -> void:
+	for index in world.bodies.size():
+		var body := world.bodies[index]
+		if _trails.has(body.id):
+			var trail: SandboxTrail = _trails[body.id]
+			trail.set_color(Preferences.orbit_color(body.color, index))
 
 
 func set_preview(active: bool, origin: DVec3 = null, tip: DVec3 = null, radius_km: float = 1.0) -> void:
@@ -109,7 +118,7 @@ func set_body_color(id: String, color: Color) -> void:
 		visual.set_tint(color)
 	if _trails.has(id):
 		var trail: SandboxTrail = _trails[id]
-		trail.set_color(color)
+		trail.set_color(Preferences.orbit_color(color, world.index_of(id)))
 
 
 func render_position(id: String) -> PackedFloat64Array:
@@ -290,13 +299,16 @@ func _sync_bodies() -> void:
 			continue
 		var visual := BodyVisual.new(body.texture_path, body.night_texture_path, body.emissive, _tint_for(body))
 		visual.set_mesh_detail(profile["sphere_radial_segments"], profile["sphere_rings"])
+		visual.set_effects_detail(profile["full_effects"])
 		var definition := body.definition
 		if definition != null and definition.ring_texture_path != "":
 			visual.add_rings(definition.ring_inner_km / definition.radius_km, definition.ring_outer_km / definition.radius_km, definition.ring_texture_path)
+		if definition != null:
+			visual.add_atmosphere_layers(definition)
 		add_child(visual)
 		_visuals[body.id] = visual
 		var trail := SandboxTrail.new(body.color)
-		trail.configure(profile["trail_points"], profile["trail_length_fraction"])
+		trail.configure(profile["trail_points"], Preferences.trail_length_fraction())
 		trail.visible = _trails_visible
 		add_child(trail)
 		_trails[body.id] = trail
@@ -315,6 +327,7 @@ func _sync_bodies() -> void:
 			if _halos.has(id):
 				_halos[id].queue_free()
 				_halos.erase(id)
+	apply_trail_colors()
 	compute_positions()
 
 

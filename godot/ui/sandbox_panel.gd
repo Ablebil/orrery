@@ -2,7 +2,12 @@ class_name SandboxPanel
 extends PanelContainer
 
 signal place_toggled(active: bool)
-signal reset_pressed
+signal preset_load_requested(index: int)
+signal snapshot_save_requested
+signal snapshot_restore_requested
+signal integrator_selected(index: int)
+signal time_step_selected(seconds: float)
+signal baseline_reset_requested
 signal remove_pressed
 signal focus_pressed
 signal freeze_toggled(frozen: bool)
@@ -10,15 +15,26 @@ signal selected_mass_changed(mass_kg: float)
 signal selected_radius_changed(radius_km: float)
 signal selected_color_changed(color: Color)
 
+enum Page { BODIES, WORLD, PHYSICS }
+
 const PANEL_WIDTH := 340
 const CONTENT_WIDTH := 300
 const SCROLL_HEIGHT := 460
 const MIN_SCROLL_HEIGHT := 180.0
+const PAGE_NAMES: Array[String] = ["Bodies", "World", "Physics"]
 const DEFAULT_LAUNCH_HINT := "Click the orbital plane to place a body, then drag to set its launch velocity."
 const EARTH_MASS_KG := 5.9722e24
 const MASS_LOG_RANGE := Vector2(-10.0, 6.5)
 const RADIUS_LOG_RANGE := Vector2(-0.5, 6.5)
 const SLIDER_STEP := 0.01
+const INTEGRATOR_NAMES: Array[String] = ["Velocity Verlet", "RK4"]
+const TIME_STEP_NAMES: Array[String] = ["Adaptive", "1 hour", "6 hours", "1 day"]
+const TIME_STEP_SECONDS: Array[float] = [0.0, 3600.0, 21600.0, 86400.0]
+const CONSERVATION_NOTE := (
+	"An exact solution keeps both values constant. Drift since the baseline shows the integrator's numerical error. "
+	+ "Merges, edits, and new bodies reset the baseline."
+)
+const FROZEN_NOTE := "Frozen bodies are held by an outside force, so energy and angular momentum are not conserved."
 const TEMPLATES := [
 	{
 		"name": "Asteroid",
@@ -59,6 +75,9 @@ const TEMPLATES := [
 ]
 
 var _scroll := ScrollContainer.new()
+var _tabs := SegmentedControl.new(PAGE_NAMES, "Sandbox sections")
+var _pages: Array[VBoxContainer] = []
+var _page := Page.BODIES
 var _template_option := OptionButton.new()
 var _new_mass_slider := HSlider.new()
 var _new_mass_label := Label.new()
@@ -79,6 +98,15 @@ var _selected_color := ColorPickerButton.new()
 var _selected_color_row: HBoxContainer
 var _freeze_check := CheckButton.new()
 var _readout_label: Label
+var _integrator_control := SegmentedControl.new(INTEGRATOR_NAMES, "Numerical method used to advance the bodies")
+var _time_step_control := SegmentedControl.new(TIME_STEP_NAMES, "Adaptive shortens steps during close encounters; fixed steps show how step size affects accuracy")
+var _conservation_grid := GridContainer.new()
+var _conservation_values: Array[Label] = []
+var _frozen_label: Label
+var _preset_option := OptionButton.new()
+var _preset_description: Label
+var _preset_descriptions: Array[String] = []
+var _restore_button: Button
 
 
 func _init() -> void:
@@ -92,23 +120,62 @@ func _init() -> void:
 	header.add_child(heading)
 	_count_label = Hud.make_label("", "DimLabel")
 	header.add_child(_count_label)
+	box.add_child(_tabs)
+	_tabs.selected.connect(func(index: int) -> void: show_page(index as Page))
+	_notice_label = Hud.make_wrapped_label("", CONTENT_WIDTH, "WarningLabel")
+	_notice_label.visible = false
+	box.add_child(_notice_label)
 	box.add_child(HSeparator.new())
 	_scroll.custom_minimum_size = Vector2(0, SCROLL_HEIGHT)
 	_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	box.add_child(_scroll)
 	var content := Hud.scroll_content(_scroll)
-	_build_selected_section(content)
-	_build_new_body_section(content)
-	_notice_label = Hud.make_wrapped_label("", CONTENT_WIDTH, "WarningLabel")
-	_notice_label.visible = false
-	box.add_child(_notice_label)
-	box.add_child(HSeparator.new())
-	box.add_child(Hud.make_button("Reset to the solar system", func() -> void: reset_pressed.emit(), "Restore the planets at the current simulation date"))
+	for _name in PAGE_NAMES:
+		var page := VBoxContainer.new()
+		page.add_theme_constant_override("separation", 6)
+		content.add_child(page)
+		_pages.append(page)
+	_build_selected_section(_pages[Page.BODIES])
+	_build_new_body_section(_pages[Page.BODIES])
+	_build_world_section(_pages[Page.WORLD])
+	_build_physics_section(_pages[Page.PHYSICS])
 	_apply_template(1)
+	show_page(Page.BODIES)
+
+
+func _ready() -> void:
+	Preferences.changed.connect(_sync_level)
+	_sync_level()
 
 
 func _process(_delta: float) -> void:
-	Hud.fit_scroll(self, _scroll, MIN_SCROLL_HEIGHT, SCROLL_HEIGHT)
+	var content_height: float = (_scroll.get_child(0) as Control).get_combined_minimum_size().y
+	var maximum := minf(SCROLL_HEIGHT, content_height)
+	Hud.fit_scroll(self, _scroll, minf(MIN_SCROLL_HEIGHT, maximum), maximum)
+
+
+func show_page(page: Page) -> void:
+	_page = page
+	_tabs.select(page)
+	for index in _pages.size():
+		_pages[index].visible = index == page
+	_scroll.scroll_vertical = 0
+
+
+func set_presets(names: Array[String], descriptions: Array[String]) -> void:
+	_preset_option.clear()
+	_preset_descriptions = descriptions
+	for index in names.size():
+		_preset_option.add_item(names[index])
+		if index < descriptions.size():
+			_preset_option.set_item_tooltip(index, descriptions[index])
+	if not names.is_empty():
+		_preset_option.select(0)
+		_show_preset_description(0)
+
+
+func set_snapshot_available(available: bool) -> void:
+	_restore_button.disabled = not available
 
 
 func new_body_spec() -> Dictionary:
@@ -131,6 +198,8 @@ func set_body_count(count: int, cap: int) -> void:
 func set_placing(active: bool) -> void:
 	_place_button.set_pressed_no_signal(active)
 	_place_button.text = "Placing... (Esc to stop)" if active else "Place body"
+	if active:
+		show_page(Page.BODIES)
 
 
 func set_launch_text(text: String) -> void:
@@ -154,6 +223,7 @@ func show_selected(
 	_freeze_check.set_pressed_no_signal(frozen)
 	_selected_color.color = color
 	_selected_color_row.visible = colorable
+	show_page(Page.BODIES)
 
 
 func hide_selected() -> void:
@@ -162,6 +232,16 @@ func hide_selected() -> void:
 
 func set_readout(text: String) -> void:
 	_readout_label.text = text
+
+
+func set_conservation(energy_j: float, energy_drift: float, momentum_si: float, momentum_drift: float, has_frozen: bool) -> void:
+	if not _pages[Page.PHYSICS].is_visible_in_tree():
+		return
+	_conservation_values[0].text = "%s J" % BodyFacts.format_scientific(energy_j, 4)
+	_conservation_values[1].text = _drift_text(energy_drift)
+	_conservation_values[2].text = "%s kg m2/s" % BodyFacts.format_scientific(momentum_si, 4)
+	_conservation_values[3].text = _drift_text(momentum_drift)
+	_frozen_label.visible = has_frozen
 
 
 func _build_new_body_section(box: VBoxContainer) -> void:
@@ -235,6 +315,87 @@ func _build_selected_section(box: VBoxContainer) -> void:
 	buttons.add_child(remove)
 	_selected_box.add_child(buttons)
 	_selected_box.add_child(HSeparator.new())
+
+
+func _build_world_section(box: VBoxContainer) -> void:
+	box.add_child(Hud.section_label("Presets"))
+	var preset_row := HBoxContainer.new()
+	box.add_child(preset_row)
+	_preset_option.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_preset_option.focus_mode = Control.FOCUS_NONE
+	_preset_option.clip_text = true
+	_preset_option.item_selected.connect(_show_preset_description)
+	preset_row.add_child(_preset_option)
+	preset_row.add_child(
+		Hud.make_accent_button(
+			"Load",
+			func() -> void: preset_load_requested.emit(_preset_option.selected),
+			"Replace all bodies with this preset at the current simulation date"
+		)
+	)
+	_preset_description = Hud.make_wrapped_label("", CONTENT_WIDTH, "DimLabel")
+	box.add_child(_preset_description)
+	box.add_child(HSeparator.new())
+	box.add_child(Hud.section_label("Snapshot"))
+	box.add_child(Hud.make_wrapped_label("Save every body as it is now and come back to it later.", CONTENT_WIDTH, "DimLabel"))
+	var snapshot_row := HBoxContainer.new()
+	box.add_child(snapshot_row)
+	var save := Hud.make_button("Save snapshot", func() -> void: snapshot_save_requested.emit(), "Store every body as it is now")
+	save.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	snapshot_row.add_child(save)
+	_restore_button = Hud.make_button(
+		"Restore snapshot", func() -> void: snapshot_restore_requested.emit(), "Return to the last saved snapshot"
+	)
+	_restore_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_restore_button.disabled = true
+	snapshot_row.add_child(_restore_button)
+
+
+func _build_physics_section(box: VBoxContainer) -> void:
+	box.add_child(Hud.section_label("Integrator"))
+	_integrator_control.select(0)
+	_integrator_control.selected.connect(func(index: int) -> void: integrator_selected.emit(index))
+	box.add_child(_integrator_control)
+	box.add_child(Hud.section_label("Time step"))
+	_time_step_control.select(0)
+	_time_step_control.selected.connect(func(index: int) -> void: time_step_selected.emit(TIME_STEP_SECONDS[index]))
+	box.add_child(_time_step_control)
+	box.add_child(HSeparator.new())
+	box.add_child(Hud.section_label("Conservation"))
+	_conservation_grid.columns = 2
+	_conservation_grid.add_theme_constant_override("h_separation", 12)
+	box.add_child(_conservation_grid)
+	for row_name in ["Total energy", "Energy drift", "Angular momentum", "Momentum drift"]:
+		_conservation_grid.add_child(Hud.make_label(row_name, "DimLabel"))
+		var value := Hud.make_label("")
+		value.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		value.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+		_conservation_grid.add_child(value)
+		_conservation_values.append(value)
+	_frozen_label = Hud.make_wrapped_label(FROZEN_NOTE, CONTENT_WIDTH, "WarningLabel")
+	_frozen_label.visible = false
+	box.add_child(_frozen_label)
+	box.add_child(Hud.make_wrapped_label(CONSERVATION_NOTE, CONTENT_WIDTH, "DimLabel"))
+	var reset := Hud.make_button("Reset baseline", func() -> void: baseline_reset_requested.emit(), "Measure drift from now on")
+	reset.size_flags_horizontal = Control.SIZE_SHRINK_END
+	box.add_child(reset)
+
+
+func _show_preset_description(index: int) -> void:
+	_preset_description.text = _preset_descriptions[index] if index < _preset_descriptions.size() else ""
+
+
+func _drift_text(drift: float) -> String:
+	if absf(drift) < 1.0e-15:
+		return "0"
+	return ("+" if drift > 0.0 else "") + BodyFacts.format_scientific(drift, 2)
+
+
+func _sync_level() -> void:
+	var scientist := Preferences.is_scientist()
+	_tabs.set_option_visible(Page.PHYSICS, scientist)
+	if not scientist and _page == Page.PHYSICS:
+		show_page(Page.BODIES)
 
 
 func _add_slider(box: VBoxContainer, label: Label, slider: HSlider, range_values: Vector2) -> void:

@@ -188,5 +188,138 @@
 				"Orbital period of about 164.8 years at 30.1 AU."
 			]
 		}
+	},
+	"ceres": {
+		"type": "Dwarf planet",
+		"explorer": {
+			"summary": "Ceres is the largest object in the asteroid belt between Mars and Jupiter. It is round like a planet, but small enough to fit inside Texas.",
+			"facts": [
+				"It was the first asteroid ever discovered, by Giuseppe Piazzi in 1801.",
+				"Bright spots inside the crater Occator are deposits of salt.",
+				"NASA's Dawn spacecraft orbited Ceres from 2015 to 2018."
+			]
+		},
+		"scientist": {
+			"summary": "The only dwarf planet in the inner solar system, with a mean radius of about 470 km and a bulk density of 2.16 g/cm3. It is partly differentiated, with a rocky interior under a crust rich in ice, salts, and hydrated minerals.",
+			"facts": [
+				"The bright faculae in Occator crater are mostly sodium carbonate brought up from a briny reservoir.",
+				"Ahuna Mons, about 4 km high, is interpreted as a cryovolcanic dome.",
+				"Sidereal rotation period of about 9.07 hours at a semi-major axis of 2.77 AU."
+			]
+		}
+	},
+	"pluto": {
+		"type": "Dwarf planet",
+		"explorer": {
+			"summary": "Pluto is a small, icy world far beyond Neptune. It was called the ninth planet until 2006, when astronomers named it a dwarf planet.",
+			"facts": [
+				"Its bright, heart-shaped region is a giant plain of frozen nitrogen.",
+				"One year on Pluto lasts about 248 Earth years.",
+				"NASA's New Horizons flew past Pluto in July 2015 and took the first close-up pictures."
+			]
+		},
+		"scientist": {
+			"summary": "A Kuiper belt dwarf planet with a mean radius of 1,188 km, a bulk density of 1.85 g/cm3, and a thin nitrogen atmosphere with layered haze. It is locked in a 3:2 orbital resonance with Neptune.",
+			"facts": [
+				"Sputnik Planitia is a convecting nitrogen-ice glacier about 1,000 km across.",
+				"An eccentricity of 0.25 brings it closer to the Sun than Neptune for part of each orbit, as it was from 1979 to 1999.",
+				"Much of the southern hemisphere was in polar night during the 2015 flyby, so this map shows it as an even tone."
+			]
+		}
+	},
+	"io": {
+		"type": "Moon of Jupiter",
+		"explorer": {
+			"summary": "Io is the most volcanic world in the solar system. Its yellow, orange, and white colors come from sulfur and frozen gases spread by its eruptions.",
+			"facts": [
+				"Hundreds of volcanoes are active on Io, and some shoot plumes hundreds of kilometers high.",
+				"Jupiter's gravity squeezes Io as it orbits, heating its insides.",
+				"Io is a little larger than our Moon."
+			]
+		},
+		"scientist": {
+			"summary": "The innermost Galilean moon, with a mean radius of 1,821.6 km and a density of 3.53 g/cm3. Tidal heating from its eccentric orbit, forced by the 1:2:4 Laplace resonance with Europa and Ganymede, drives intense silicate volcanism.",
+			"facts": [
+				"Global heat flow of about 2 W/m2, more than twenty times Earth's average.",
+				"Volcanic gases supply the Io plasma torus that surrounds Jupiter along Io's orbit.",
+				"Orbital period of 1.769 days at about 5.9 Jupiter radii."
+			]
+		}
+	},
+	"europa": {
+		"type": "Moon of Jupiter",
+		"explorer": {
+			"summary": "Europa is covered by a shell of ice with a salty ocean hidden underneath. That ocean may hold more water than all of Earth's oceans.",
+			"facts": [
+				"The dark lines across its surface are cracks and ridges in the ice.",
+				"Scientists think Europa is one of the best places to look for life beyond Earth.",
+				"NASA's Europa Clipper spacecraft is on its way to study it."
+			]
+		},
+		"scientist": {
+			"summary": "A differentiated moon with a mean radius of 1,560.8 km and an ice shell over a global liquid-water ocean. Galileo detected an induced magnetic field consistent with a conducting, salty ocean.",
+			"facts": [
+				"The ice shell is estimated to be roughly 15 to 25 km thick over an ocean up to about 100 km deep.",
+				"Few impact craters suggest a young surface, about 40 to 90 million years old.",
+				"Orbital period of 3.551 days, in a 2:1 resonance with Io."
+			]
+		}
+	},
+	"ganymede": {
+		"type": "Moon of Jupiter",
+		"explorer": {
+			"summary": "Ganymede is the largest moon in the solar system. It is even wider than the planet Mercury.",
+			"facts": [
+				"It is the only moon known to make its own magnetic field.",
+				"A deep ocean is thought to lie far beneath its icy crust.",
+				"ESA's JUICE spacecraft will orbit Ganymede in the 2030s."
+			]
+		},
+		"scientist": {
+			"summary": "The largest moon, with a mean radius of 2,634.1 km and a density of 1.94 g/cm3. It is strongly differentiated, with an iron core that generates an intrinsic magnetic field and a magnetosphere embedded in Jupiter's.",
+			"facts": [
+				"Its normalized moment of inertia of about 0.31 is among the lowest of any solid body.",
+				"Bright grooved terrain cuts across older, darker, heavily cratered regions.",
+				"Orbital period of 7.155 days, in a 2:1 resonance with Europa."
+			]
+		}
+	},
+	"callisto": {
+		"type": "Moon of Jupiter",
+		"explorer": {
+			"summary": "Callisto is the outermost of Jupiter's four big moons. Its dark, icy surface is covered with more craters than almost any other world.",
+			"facts": [
+				"Its biggest impact basin, Valhalla, has rings that spread out about 3,800 km.",
+				"Callisto is almost as wide as the planet Mercury.",
+				"It orbits farther from Jupiter's radiation, so it could be a base for future explorers."
+			]
+		},
+		"scientist": {
+			"summary": "A moon with a mean radius of 2,410.3 km and a density of 1.83 g/cm3. Its moment of inertia indicates only partial differentiation, and Galileo magnetometer data suggest a subsurface ocean.",
+			"facts": [
+				"Its ancient surface records about 4 billion years of impacts with little geologic resurfacing.",
+				"It is the only Galilean moon outside the Laplace resonance.",
+				"Orbital period of 16.69 days at about 26 Jupiter radii."
+			]
+		}
+	},
+	"titan": {
+		"type": "Moon of Saturn",
+		"explorer": {
+			"summary": "Titan is Saturn's largest moon and the only moon with a thick atmosphere. An orange haze hides its surface from view.",
+			"facts": [
+				"It has lakes and seas, but they are filled with liquid methane and ethane instead of water.",
+				"The Huygens probe landed on Titan in 2005.",
+				"Titan is bigger than the planet Mercury."
+			]
+		},
+		"scientist": {
+			"summary": "The second-largest moon, with a mean radius of 2,574.7 km and a nitrogen atmosphere with a surface pressure of about 1.5 bar. Photochemistry of methane produces the organic haze that hides the surface in visible light.",
+			"facts": [
+				"Surface temperature of about 94 K supports a methane cycle with clouds, rain, rivers, and polar seas such as Kraken Mare.",
+				"The surface map shown here comes from Cassini near-infrared images taken through the haze.",
+				"Orbital period of 15.945 days at about 20 Saturn radii."
+			]
+		}
 	}
 }

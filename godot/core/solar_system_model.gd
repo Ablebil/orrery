@@ -45,3 +45,19 @@ func update(simulation_seconds: float) -> void:
 		relative_km[body.id] = relative
 		var parent_absolute: DVec3 = absolute_km[body.parent_id]
 		absolute_km[body.id] = parent_absolute.plus(relative)
+
+
+func cycle_order() -> Array[String]:
+	var keyed: Array = []
+	for body in bodies:
+		var root := body
+		while get_parent_body(root) != null and get_parent_body(root).kind != "star":
+			root = get_parent_body(root)
+		var own := 0.0 if body.orbit == null else body.orbit.elements[OrbitModel.SEMI_MAJOR]
+		var system := 0.0 if root.orbit == null else root.orbit.elements[OrbitModel.SEMI_MAJOR]
+		keyed.append([system, 0.0 if root == body else own, body.id])
+	keyed.sort_custom(func(a: Array, b: Array) -> bool: return a[0] < b[0] or (a[0] == b[0] and a[1] < b[1]))
+	var order: Array[String] = []
+	for entry: Array in keyed:
+		order.append(entry[2])
+	return order

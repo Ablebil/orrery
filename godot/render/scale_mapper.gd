@@ -9,8 +9,8 @@ const RADIUS_EXPONENT := 0.5
 const PLANET_ORBIT_BASE := 10.0
 const PLANET_ORBIT_FACTOR := 18.0
 const PLANET_ORBIT_EXPONENT := 0.55
-const MOON_ORBIT_GAP := 2.0
-const MOON_ORBIT_SPREAD := 1.0
+const MOON_ORBIT_BASE := 1.4
+const MOON_ORBIT_SPREAD := 1.8
 
 var mode: Mode = Mode.COMPRESSED
 
@@ -44,4 +44,4 @@ func _compressed_distance(body: BodyDefinition, parent: BodyDefinition, distance
 	if parent.kind == "star":
 		return heliocentric_units(distance_km)
 	var ratio := maxf(distance_km / parent.radius_km, 1.0)
-	return radius(parent) + MOON_ORBIT_GAP + MOON_ORBIT_SPREAD * log(ratio) / log(10.0)
+	return radius(parent) * (MOON_ORBIT_BASE + MOON_ORBIT_SPREAD * log(ratio) / log(10.0))

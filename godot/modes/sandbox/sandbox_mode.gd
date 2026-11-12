@@ -13,10 +13,14 @@ const INITIAL_OFFSET := Vector3(0.0, 3.0e5, 4.0e5)
 const DEFAULT_ANCHOR_ID := "sun"
 const KM_PER_AU := 149597870.7
 const HELP_TEXT := (
-	"WASD move   Q/E down/up   Shift boost   Right mouse look   Wheel speed   Click select\n"
-	+ "Place body: click the orbital plane, drag to set velocity, release to launch   Esc cancel   Del remove\n"
-	+ "Space pause   R reverse   [ ] time speed   L labels   O orbit lines   G distance rings   1-0 focus body   F2/F1 switch mode   F3 help   H hide"
+	"{move_forward}/{move_left}/{move_back}/{move_right} move   {move_down}/{move_up} down/up   {boost} boost   "
+	+ "Drag or scroll orbit   Pinch or Ctrl+scroll zoom   Shift+scroll speed   Right mouse look   Click select\n"
+	+ "Place body: click the orbital plane, drag to set velocity, release to launch   Esc cancel   {delete_body} remove\n"
+	+ "{time_pause} pause   {time_reverse} reverse   {time_slower} {time_faster} time speed   {toggle_labels} labels   "
+	+ "{toggle_trails} orbit lines   {toggle_grid} distance rings   {toggle_level} level   1-0 focus body   "
+	+ "{mode_explore} explore   {toggle_help} help   {toggle_hud} hide"
 )
+const MODE_SWITCH_TEXT := "Open Explore ({mode_explore})"
 
 var model: SolarSystemModel
 var world: SandboxWorld
@@ -36,33 +40,45 @@ var _speed_limited := false
 var _spawn_counter := 0
 var _launch_status := ""
 var _focus_actions: Array[StringName] = []
+var _presets: Array[Dictionary] = []
+var _integrator: NBodySimulation.Integrator = NBodySimulation.Integrator.VELOCITY_VERLET
+var _fixed_step_seconds := 0.0
+var _energy_baseline := 0.0
+var _momentum_baseline := 0.0
 
 
 func _build_world() -> void:
 	model = SolarSystemModel.new(BodyCatalog.load_bodies())
-	world = SandboxWorld.from_solar_system(model, clock.seconds)
+	_presets = SandboxPresets.load_presets()
 	add_child(renderer)
-	renderer.set_world(world)
 	hud.add_overlay(_labels)
 	hud.left_column.add_child(panel)
-	hud.set_help(HELP_TEXT)
-	hud.set_mode_switch("Open Explore (F1)")
+	set_key_help(HELP_TEXT, MODE_SWITCH_TEXT)
 	hud.set_now_visible(false)
-	hud.set_depth_visible(false)
+	hud.set_depth_visible(true)
 	for index in 10:
 		_focus_actions.append(StringName("focus_body_%d" % index))
+	var names: Array[String] = []
+	var descriptions: Array[String] = []
+	for preset in _presets:
+		names.append(str(preset["name"]))
+		descriptions.append(str(preset.get("description", "")))
+	panel.set_presets(names, descriptions)
+	panel.set_snapshot_available(SandboxPresets.has_snapshot())
 	panel.place_toggled.connect(_set_placing)
-	panel.reset_pressed.connect(func() -> void: _reset_world(clock.seconds))
+	panel.preset_load_requested.connect(_load_preset)
+	panel.snapshot_save_requested.connect(_save_snapshot)
+	panel.snapshot_restore_requested.connect(_restore_snapshot)
+	panel.integrator_selected.connect(_set_integrator)
+	panel.time_step_selected.connect(_set_fixed_step)
+	panel.baseline_reset_requested.connect(_reset_conservation_baseline)
 	panel.remove_pressed.connect(_remove_selected)
 	panel.focus_pressed.connect(func() -> void: _fly_to(_selected_id))
 	panel.freeze_toggled.connect(_set_selected_frozen)
 	panel.selected_mass_changed.connect(_set_selected_mass)
 	panel.selected_radius_changed.connect(_set_selected_radius)
 	panel.selected_color_changed.connect(_set_selected_color)
-	world.bodies_changed.connect(_refresh_count)
-	renderer.compute_positions()
-	_home_camera()
-	_refresh_count()
+	_install_world(SandboxWorld.from_solar_system(model, clock.seconds))
 
 
 func _is_explore() -> bool:
@@ -91,6 +107,7 @@ func _process(delta: float) -> void:
 	if _info_timer >= INFO_REFRESH_SECONDS:
 		_info_timer = 0.0
 		_refresh_readout()
+		_refresh_conservation()
 	hud.refresh(clock)
 	hud.set_status(_status_text())
 
@@ -124,6 +141,7 @@ func _on_quality_changed() -> void:
 
 func _on_preferences_changed() -> void:
 	renderer.set_trails_visible(Preferences.trails_visible)
+	renderer.apply_trail_colors()
 	renderer.set_rings_visible(Preferences.rings_visible)
 
 
@@ -176,21 +194,119 @@ func _status_text() -> String:
 
 
 func _home_camera() -> void:
-	camera.reanchor(DEFAULT_ANCHOR_ID, PackedFloat64Array([INITIAL_OFFSET.x, INITIAL_OFFSET.y, INITIAL_OFFSET.z]))
+	camera.reanchor(_home_anchor_id(), PackedFloat64Array([INITIAL_OFFSET.x, INITIAL_OFFSET.y, INITIAL_OFFSET.z]))
 	camera.aim(-INITIAL_OFFSET)
 
 
-func _reset_world(at_seconds: float) -> void:
+func _home_anchor_id() -> String:
+	if world.index_of(DEFAULT_ANCHOR_ID) >= 0:
+		return DEFAULT_ANCHOR_ID
+	var heaviest := ""
+	var heaviest_gm := -1.0
+	for index in world.bodies.size():
+		if world.simulation.gm[index] > heaviest_gm:
+			heaviest_gm = world.simulation.gm[index]
+			heaviest = world.bodies[index].id
+	return heaviest
+
+
+func _install_world(new_world: SandboxWorld) -> void:
 	_cancel_placement()
-	world = SandboxWorld.from_solar_system(model, at_seconds)
-	clock.seconds = at_seconds
+	world = new_world
+	world.simulation.integrator = _integrator
+	world.simulation.set_fixed_step_seconds(_fixed_step_seconds)
+	clock.seconds = world.seconds
 	world.bodies_changed.connect(_refresh_count)
+	world.bodies_changed.connect(_reset_conservation_baseline)
+	world.bodies_merged.connect(_on_bodies_merged)
 	renderer.set_world(world)
 	renderer.compute_positions()
 	_clear_selection()
 	if world.index_of(camera.anchor_id) < 0:
 		_home_camera()
 	_refresh_count()
+	_reset_conservation_baseline()
+
+
+func _replace_world(candidate: SandboxWorld) -> void:
+	if candidate.bodies.size() > Quality.profile()["max_bodies"]:
+		panel.set_notice(_body_limit_notice())
+		return
+	panel.set_notice("")
+	_install_world(candidate)
+
+
+func _body_limit_notice() -> String:
+	return "Body limit reached for the %s preset." % Quality.PRESET_NAMES[Quality.preset]
+
+
+func _load_preset(index: int) -> void:
+	if index < 0 or index >= _presets.size():
+		return
+	_replace_world(SandboxWorld.from_preset(_presets[index], model, clock.seconds))
+
+
+func _save_snapshot() -> void:
+	if SandboxPresets.save_snapshot(world):
+		panel.set_notice("")
+		panel.set_snapshot_available(true)
+	else:
+		panel.set_notice("The snapshot could not be saved.")
+
+
+func _restore_snapshot() -> void:
+	var restored := SandboxPresets.load_snapshot(model)
+	if restored == null:
+		panel.set_notice("The saved snapshot could not be read.")
+		return
+	_replace_world(restored)
+
+
+func _set_integrator(index: int) -> void:
+	_integrator = index as NBodySimulation.Integrator
+	world.simulation.integrator = _integrator
+
+
+func _set_fixed_step(seconds: float) -> void:
+	_fixed_step_seconds = seconds
+	world.simulation.set_fixed_step_seconds(seconds)
+
+
+func _on_bodies_merged(survivor_id: String, absorbed_id: String) -> void:
+	Audio.play_effect(&"merge")
+	if camera.anchor_id == absorbed_id:
+		var current := camera.world_position(_merge_render_position(absorbed_id))
+		var survivor := world.index_of(survivor_id)
+		if survivor >= 0:
+			camera.fly_to(
+				survivor_id,
+				_merge_render_position(survivor_id),
+				current,
+				maxf(world.simulation.radii[survivor] / SandboxRenderer.UNIT_KM, 1.0e-6),
+				_toward_light(survivor)
+			)
+		else:
+			var anchor := _merge_render_position(survivor_id)
+			camera.reanchor(
+				survivor_id, PackedFloat64Array([current[0] - anchor[0], current[1] - anchor[1], current[2] - anchor[2]])
+			)
+	if _selected_id == absorbed_id or _selected_id == survivor_id:
+		_selected_id = survivor_id
+		_select(survivor_id)
+
+
+func _merge_render_position(body_id: String) -> PackedFloat64Array:
+	var index := world.index_of(body_id)
+	if index < 0:
+		return renderer.render_position(body_id)
+	var simulation := world.simulation
+	return PackedFloat64Array(
+		[
+			simulation.positions[index * 3] / SandboxRenderer.UNIT_KM,
+			simulation.positions[index * 3 + 2] / SandboxRenderer.UNIT_KM,
+			-simulation.positions[index * 3 + 1] / SandboxRenderer.UNIT_KM
+		]
+	)
 
 
 func _refresh_count() -> void:
@@ -246,12 +362,14 @@ func _distance_text(distance_km: float) -> String:
 
 func _set_placing(active: bool) -> void:
 	_placing = active
+	camera.drag_orbit_enabled = not active
 	if not active:
 		_cancel_placement()
 
 
 func _cancel_placement() -> void:
 	_dragging = false
+	camera.drag_orbit_enabled = not _placing
 	renderer.set_preview(false)
 	panel.set_launch_text(SandboxPanel.DEFAULT_LAUNCH_HINT)
 
@@ -260,8 +378,10 @@ func _cancel() -> void:
 	if _placing:
 		panel.set_placing(false)
 		_set_placing(false)
-	else:
+	elif _selected_id != "":
 		_clear_selection()
+	else:
+		_open_pause_menu()
 
 
 func _plane_point(screen_position: Vector2) -> DVec3:
@@ -290,6 +410,7 @@ func _begin_drag(screen_position: Vector2) -> void:
 	_drag_origin = point
 	_drag_tip = point
 	_update_preview()
+	Audio.play_effect(&"place")
 
 
 func _update_drag(screen_position: Vector2) -> void:
@@ -319,6 +440,7 @@ func _finish_drag() -> void:
 		spec["mass_kg"],
 		spec["radius_km"]
 	)
+	Audio.play_effect(&"launch")
 	_select(body.id)
 	panel.set_launch_text(SandboxPanel.DEFAULT_LAUNCH_HINT)
 
@@ -364,24 +486,28 @@ func _remove_selected() -> void:
 		camera.release_anchor(camera.world_position(_anchor_position()))
 	_clear_selection()
 	world.remove_body(removed_id)
+	Audio.play_effect(&"remove")
 
 
 func _set_selected_frozen(frozen: bool) -> void:
 	var index := world.index_of(_selected_id)
 	if index >= 0:
 		world.simulation.set_frozen(index, frozen)
+		_reset_conservation_baseline()
 
 
 func _set_selected_mass(mass_kg: float) -> void:
 	var index := world.index_of(_selected_id)
 	if index >= 0:
 		world.simulation.set_mass_kg(index, mass_kg)
+		_reset_conservation_baseline()
 
 
 func _set_selected_radius(radius_km: float) -> void:
 	var index := world.index_of(_selected_id)
 	if index >= 0:
 		world.simulation.set_radius_km(index, radius_km)
+		_reset_conservation_baseline()
 
 
 func _set_selected_color(color: Color) -> void:
@@ -450,3 +576,20 @@ func _update_labels() -> void:
 	_labels.set_entries(entries)
 
 
+
+
+func _reset_conservation_baseline() -> void:
+	_energy_baseline = world.simulation.total_energy_joules()
+	_momentum_baseline = world.simulation.angular_momentum_si()
+	_refresh_conservation()
+
+
+func _refresh_conservation() -> void:
+	if not Preferences.is_scientist():
+		return
+	var simulation := world.simulation
+	var energy := simulation.total_energy_joules()
+	var momentum := simulation.angular_momentum_si()
+	var energy_drift := (energy - _energy_baseline) / absf(_energy_baseline) if _energy_baseline != 0.0 else 0.0
+	var momentum_drift := (momentum - _momentum_baseline) / _momentum_baseline if _momentum_baseline != 0.0 else 0.0
+	panel.set_conservation(energy, energy_drift, momentum, momentum_drift, simulation.has_frozen_bodies())

@@ -38,6 +38,7 @@
 		},
 		"rotation": {"obliquity_deg": 177.36, "pole_ra_deg": 272.76, "pole_dec_deg": 67.16, "prime_meridian_deg": 160.20, "rate_deg_per_day": -1.4813688},
 		"texture": "res://assets/textures/bodies/venus_surface.jpg",
+		"atmosphere": {"color": "#F5DEA8", "thickness": 0.035, "intensity": 1.0},
 		"color": "#E8C27A"
 	},
 	{
@@ -54,6 +55,8 @@
 		"rotation": {"obliquity_deg": 23.44, "pole_ra_deg": 0.0, "pole_dec_deg": 90.0, "prime_meridian_deg": 190.147, "rate_deg_per_day": 360.9856235},
 		"texture": "res://assets/textures/bodies/earth_daymap.jpg",
 		"night_texture": "res://assets/textures/bodies/earth_nightmap.jpg",
+		"atmosphere": {"color": "#5C9EFF", "thickness": 0.025, "intensity": 1.1},
+		"clouds": {"texture": "res://assets/textures/bodies/earth_clouds.jpg", "altitude": 0.006, "opacity": 0.9},
 		"color": "#4F9DFF"
 	},
 	{
@@ -84,6 +87,7 @@
 		},
 		"rotation": {"obliquity_deg": 25.19, "pole_ra_deg": 317.269202, "pole_dec_deg": 54.432516, "prime_meridian_deg": 176.049863, "rate_deg_per_day": 350.891982443297},
 		"texture": "res://assets/textures/bodies/mars.jpg",
+		"atmosphere": {"color": "#D9905F", "thickness": 0.012, "intensity": 0.45},
 		"color": "#E2653D"
 	},
 	{
@@ -99,6 +103,7 @@
 		},
 		"rotation": {"obliquity_deg": 3.13, "pole_ra_deg": 268.056595, "pole_dec_deg": 64.495303, "prime_meridian_deg": 284.95, "rate_deg_per_day": 870.536},
 		"texture": "res://assets/textures/bodies/jupiter.jpg",
+		"atmosphere": {"color": "#E6D2B0", "thickness": 0.012, "intensity": 0.35},
 		"color": "#D9A066"
 	},
 	{
@@ -115,6 +120,7 @@
 		"rotation": {"obliquity_deg": 26.73, "pole_ra_deg": 40.589, "pole_dec_deg": 83.537, "prime_meridian_deg": 38.90, "rate_deg_per_day": 810.7939024},
 		"rings": {"inner_km": 74500.0, "outer_km": 140220.0, "texture": "res://assets/textures/bodies/saturn_ring.png"},
 		"texture": "res://assets/textures/bodies/saturn.jpg",
+		"atmosphere": {"color": "#F0DCA8", "thickness": 0.012, "intensity": 0.3},
 		"color": "#E8D08B"
 	},
 	{
@@ -130,6 +136,7 @@
 		},
 		"rotation": {"obliquity_deg": 97.77, "pole_ra_deg": 257.311, "pole_dec_deg": -15.175, "prime_meridian_deg": 203.81, "rate_deg_per_day": -501.1600928},
 		"texture": "res://assets/textures/bodies/uranus.jpg",
+		"atmosphere": {"color": "#A8E6F0", "thickness": 0.02, "intensity": 0.45},
 		"color": "#7FE0E6"
 	},
 	{
@@ -145,6 +152,120 @@
 		},
 		"rotation": {"obliquity_deg": 28.32, "pole_ra_deg": 299.36, "pole_dec_deg": 43.46, "prime_meridian_deg": 249.978, "rate_deg_per_day": 541.1397757},
 		"texture": "res://assets/textures/bodies/neptune.jpg",
+		"atmosphere": {"color": "#6E93FF", "thickness": 0.02, "intensity": 0.5},
 		"color": "#4A6BFF"
+	},
+	{
+		"id": "ceres",
+		"name": "Ceres",
+		"kind": "dwarf_planet",
+		"parent": "sun",
+		"mass_kg": 9.3835e20,
+		"radius_km": 469.7,
+		"orbit": {
+			"elements": [2.76555260, 0.07969230, 10.58802780, 158.745564, 153.542841, 80.24862682],
+			"rates": [0.0, 0.0, 0.0, 7827.470060, 0.0, 0.0]
+		},
+		"rotation": {"obliquity_deg": 4.0, "pole_ra_deg": 291.418, "pole_dec_deg": 66.764, "prime_meridian_deg": 170.65, "rate_deg_per_day": 952.1532},
+		"texture": "res://assets/textures/bodies/ceres.jpg",
+		"color": "#A8A39A"
+	},
+	{
+		"id": "pluto",
+		"name": "Pluto",
+		"kind": "dwarf_planet",
+		"parent": "sun",
+		"mass_kg": 1.303e22,
+		"radius_km": 1188.3,
+		"orbit": {
+			"elements": [39.58862939, 0.25183788, 17.14771141, 238.771893, 224.001386, 110.29238405],
+			"rates": [0.0, 0.0, 0.0, 144.523543, 0.0, 0.0]
+		},
+		"rotation": {"obliquity_deg": 122.53, "pole_ra_deg": 132.993, "pole_dec_deg": -6.163, "prime_meridian_deg": 302.695, "rate_deg_per_day": -56.3625225},
+		"texture": "res://assets/textures/bodies/pluto.jpg",
+		"atmosphere": {"color": "#9DB8E8", "thickness": 0.02, "intensity": 0.35},
+		"color": "#D9B99A"
+	},
+	{
+		"id": "io",
+		"name": "Io",
+		"kind": "moon",
+		"parent": "jupiter",
+		"mass_kg": 8.931938e22,
+		"radius_km": 1821.6,
+		"orbit": {
+			"elements": [0.0028195588, 0.004, 0.0, 20.0, 49.1, 0.0],
+			"rates": [0.0, 0.0, 0.0, 7432434.0375, 27006.7517, 0.0],
+			"reference_pole": [268.1, 64.5]
+		},
+		"rotation": {"obliquity_deg": 0.0, "pole_ra_deg": 268.05, "pole_dec_deg": 64.5, "prime_meridian_deg": 200.39, "rate_deg_per_day": 203.4889538},
+		"texture": "res://assets/textures/bodies/io.jpg",
+		"color": "#E8D36A"
+	},
+	{
+		"id": "europa",
+		"name": "Europa",
+		"kind": "moon",
+		"parent": "jupiter",
+		"mass_kg": 4.799844e22,
+		"radius_km": 1560.8,
+		"orbit": {
+			"elements": [0.0044860264, 0.009, 0.5, 214.4, 229.0, 184.0],
+			"rates": [0.0, 0.0, 0.0, 3702711.7758, 24632.9901, -1191.974],
+			"reference_pole": [268.1, 64.5]
+		},
+		"rotation": {"obliquity_deg": 0.1, "pole_ra_deg": 268.08, "pole_dec_deg": 64.51, "prime_meridian_deg": 36.022, "rate_deg_per_day": 101.3747235},
+		"texture": "res://assets/textures/bodies/europa.jpg",
+		"color": "#D9CBB0"
+	},
+	{
+		"id": "ganymede",
+		"name": "Ganymede",
+		"kind": "moon",
+		"parent": "jupiter",
+		"mass_kg": 1.4819e23,
+		"radius_km": 2634.1,
+		"orbit": {
+			"elements": [0.0071551821, 0.001, 0.2, 221.6, 256.8, 58.5],
+			"rates": [0.0, 0.0, 0.0, 1837850.6359, 265.8532, -261.2254],
+			"reference_pole": [268.2, 64.6]
+		},
+		"rotation": {"obliquity_deg": 0.33, "pole_ra_deg": 268.2, "pole_dec_deg": 64.57, "prime_meridian_deg": 44.064, "rate_deg_per_day": 50.3176081},
+		"texture": "res://assets/textures/bodies/ganymede.jpg",
+		"color": "#A99B8A"
+	},
+	{
+		"id": "callisto",
+		"name": "Callisto",
+		"kind": "moon",
+		"parent": "jupiter",
+		"mass_kg": 1.075938e23,
+		"radius_km": 2410.3,
+		"orbit": {
+			"elements": [0.0125850722, 0.007, 0.3, 80.3, 352.9, 309.1],
+			"rates": [0.0, 0.0, 0.0, 787883.3865, 67.1701, -62.3631],
+			"reference_pole": [268.7, 64.8]
+		},
+		"rotation": {"obliquity_deg": 0.0, "pole_ra_deg": 268.72, "pole_dec_deg": 64.83, "prime_meridian_deg": 259.51, "rate_deg_per_day": 21.5710715},
+		"texture": "res://assets/textures/bodies/callisto.jpg",
+		"color": "#8C7B68"
+	},
+	{
+		"id": "titan",
+		"name": "Titan",
+		"kind": "moon",
+		"parent": "saturn",
+		"mass_kg": 1.3452e23,
+		"radius_km": 2574.73,
+		"orbit": {
+			"elements": [0.0081681303, 0.0286, 0.36, 7.556, 204.1198, 241.836],
+			"rates": [0.0, 0.0, 0.0, 824624.0776, 51.4686, 32.687],
+			"reference_pole": [40.589, 83.537],
+			"reference_plane": "equator"
+		},
+		"rotation": {"obliquity_deg": 0.3, "pole_ra_deg": 39.4827, "pole_dec_deg": 83.4279, "prime_meridian_deg": 186.5855, "rate_deg_per_day": 22.5769768},
+		"texture": "res://assets/textures/bodies/titan.jpg",
+		"atmosphere": {"color": "#E3A45A", "thickness": 0.06, "intensity": 1.3},
+		"color": "#E0A85A"
 	}
 ]

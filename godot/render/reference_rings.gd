@@ -1,7 +1,7 @@
 class_name ReferenceRings
 extends MeshInstance3D
 
-const RING_RADII_AU: Array[float] = [0.25, 0.5, 1.0, 2.0, 5.0, 10.0, 20.0, 30.0]
+const RING_RADII_AU: Array[float] = [0.25, 0.5, 1.0, 2.0, 5.0, 10.0, 20.0, 30.0, 40.0]
 const SEGMENTS := 160
 const RING_COLOR := Color(0.6, 0.75, 1.0, 0.2)
 

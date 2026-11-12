@@ -5,6 +5,7 @@ const EMPTY_SLOT := 9223372036854775807
 const HEAD_ALPHA := 0.95
 
 var definition: BodyDefinition
+var trail_color: Color
 
 var _mesh := ImmediateMesh.new()
 var _material := StandardMaterial3D.new()
@@ -18,6 +19,7 @@ var _scratch := PackedFloat64Array([0.0, 0.0, 0.0])
 
 func _init(body: BodyDefinition) -> void:
 	definition = body
+	trail_color = body.color
 	mesh = _mesh
 	cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
@@ -45,7 +47,7 @@ func update(
 	var head := floori(simulation_seconds / _step_seconds)
 	_mesh.clear_surfaces()
 	_mesh.surface_begin(Mesh.PRIMITIVE_LINE_STRIP, _material)
-	_emit(Color(definition.color, HEAD_ALPHA), current.x, current.y, current.z, parent_camera_position, parent, mapper)
+	_emit(Color(trail_color, HEAD_ALPHA), current.x, current.y, current.z, parent_camera_position, parent, mapper)
 	for k in _point_count:
 		var index := head - k
 		var slot := posmod(index, _point_count)
@@ -57,7 +59,7 @@ func update(
 			_slot_indices[slot] = index
 		var fade := HEAD_ALPHA * (1.0 - float(k) / float(_point_count))
 		_emit(
-			Color(definition.color, fade),
+			Color(trail_color, fade),
 			_slot_points[slot * 3],
 			_slot_points[slot * 3 + 1],
 			_slot_points[slot * 3 + 2],

@@ -1,0 +1,110 @@
+{
+	"team": {
+		"name": "Team Sepak Takraw",
+		"members": [
+			{ "name": "Muhamad Fahry Pratama Putra", "nim": "245150207111046", "role": "Team Lead" },
+			{ "name": "Muhammad Atha Tsaqif", "nim": "245150201111002", "role": "Member" },
+			{ "name": "Muhammad Hafizh Faiqunnabil", "nim": "245150201111031", "role": "Member" },
+			{ "name": "Alexander William Sinjaya", "nim": "245150200111044", "role": "Member" }
+		]
+	},
+	"notice": "The narration voice is synthesized speech. It was generated offline during development with the Kokoro-82M text-to-speech model and is not a recording of a human speaker.",
+	"sections": [
+		{
+			"title": "Textures",
+			"entries": [
+				{
+					"name": "Sun, planet, Moon, Saturn ring, and Milky Way textures",
+					"author": "Solar System Scope",
+					"license": "CC BY 4.0",
+					"url": "https://www.solarsystemscope.com/textures/",
+					"text": "Textures by Solar System Scope (https://www.solarsystemscope.com/textures/), licensed under Creative Commons Attribution 4.0 International (https://creativecommons.org/licenses/by/4.0/). Includes the Sun, Mercury, Venus, Earth day, night and clouds, Moon, Mars, Jupiter, Saturn and its rings, Uranus, Neptune, and the stars and Milky Way panorama. Derived from NASA elevation and imagery data."
+				},
+				{
+					"name": "Io, Europa, Ganymede, Callisto, Titan, Ceres, and Pluto textures",
+					"author": "USGS Astrogeology Science Center, NASA/JPL, NASA/JPL-Caltech/Space Science Institute, NASA/JPL-Caltech/UCLA/MPS/DLR/IDA, NASA/JHUAPL/SwRI",
+					"license": "Public domain",
+					"url": "https://planetarymaps.usgs.gov/mosaic/",
+					"text": "Global mosaics from Voyager, Galileo, Cassini, Dawn, and New Horizons images, downsampled and tinted by the Orrery team."
+				}
+			]
+		},
+		{
+			"title": "Data sources",
+			"entries": [
+				{
+					"name": "Keplerian Elements for Approximate Positions of the Major Planets",
+					"author": "NASA Jet Propulsion Laboratory, Solar System Dynamics",
+					"license": "Public domain",
+					"url": "https://ssd.jpl.nasa.gov/planets/approx_pos.html",
+					"text": "Planetary orbital elements and rates, valid 1800 AD to 2050 AD."
+				},
+				{
+					"name": "Physical parameters and rotation poles",
+					"author": "NASA Planetary Fact Sheets and the IAU Working Group on Cartographic Coordinates and Rotational Elements",
+					"license": "Public domain",
+					"url": "",
+					"text": "Masses, radii, rotation periods, and pole orientations of the bodies."
+				},
+				{
+					"name": "Planetary satellite mean elements, Horizons ephemerides, and Small-Body Database",
+					"author": "NASA Jet Propulsion Laboratory, Solar System Dynamics",
+					"license": "Public domain",
+					"url": "https://ssd.jpl.nasa.gov/",
+					"text": "Orbits of the Galilean moons, Titan, Ceres, and Pluto."
+				},
+				{
+					"name": "Lunar mean orbital elements",
+					"author": "Jean Meeus, Astronomical Algorithms",
+					"license": "Reference values",
+					"url": "",
+					"text": ""
+				}
+			]
+		},
+		{
+			"title": "Narration",
+			"entries": [
+				{
+					"name": "Voice-over narration (voice af_bella)",
+					"author": "Kokoro-82M v1.0 by hexgrad",
+					"license": "Apache-2.0",
+					"url": "https://huggingface.co/hexgrad/Kokoro-82M",
+					"text": "Synthesized offline during development with kokoro-onnx (MIT license) using the af_bella voice. No speech is synthesized while the application runs."
+				}
+			]
+		},
+		{
+			"title": "Music and sound effects",
+			"entries": [
+				{
+					"name": "Background music and sound effects",
+					"author": "Orrery team",
+					"license": "Team-owned, same license as the project",
+					"url": "",
+					"text": "Generated offline with procedural synthesis. No third-party samples or models."
+				}
+			]
+		},
+		{
+			"title": "Engine",
+			"entries": [
+				{
+					"name": "Godot Engine",
+					"author": "Godot Engine contributors, Juan Linietsky, Ariel Manzur",
+					"license": "MIT",
+					"url": "https://godotengine.org/license",
+					"text": "This application uses Godot Engine, available under the following license:",
+					"engine_license": true
+				},
+				{
+					"name": "FreeType",
+					"author": "The FreeType Project",
+					"license": "FreeType License",
+					"url": "https://freetype.org",
+					"text": "Portions of this software are copyright © The FreeType Project (https://freetype.org). All rights reserved."
+				}
+			]
+		}
+	]
+}

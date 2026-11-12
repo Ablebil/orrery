@@ -1,0 +1,10 @@
+[project]
+name = "orrery-texture-tools"
+version = "0.1.0"
+description = "Body texture preparation from USGS global mosaics for Orrery"
+requires-python = ">=3.10,<3.13"
+dependencies = [
+    "numpy>=1.26",
+    "pillow>=10.0",
+    "tifffile>=2024.1.30",
+]

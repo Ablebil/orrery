@@ -8,10 +8,11 @@ signal faster_pressed
 signal now_pressed
 signal quality_selected(preset: int)
 signal mode_switch_pressed
+signal menu_pressed
 
 const OUTER_MARGIN := 14
 const SIDE_PANEL_WIDTH := 340
-const HELP_HINT := "   |   F3 controls"
+const HELP_HINT := "   |   %s controls"
 const SPEED_LABEL_WIDTH := 92
 const BOTTOM_RESERVE := 60.0
 const SCROLLBAR_GUTTER := 12
@@ -156,7 +157,7 @@ func set_now_visible(value: bool) -> void:
 
 
 func set_status(text: String) -> void:
-	_status_label.text = text if _help_panel.visible else text + HELP_HINT
+	_status_label.text = text if _help_panel.visible else text + HELP_HINT % InputBindings.keys_text("toggle_help")
 
 
 func set_help(text: String) -> void:
@@ -261,11 +262,16 @@ func _build_settings_panel() -> void:
 	_quality_option.tooltip_text = "Lower quality runs faster on older devices"
 	_quality_option.item_selected.connect(func(index: int) -> void: quality_selected.emit(index))
 	_quality_option.custom_minimum_size = Vector2(120, 0)
+	box.add_child(HSeparator.new())
+	var actions := HBoxContainer.new()
+	box.add_child(actions)
 	_mode_button.theme_type_variation = "AccentButton"
 	_mode_button.focus_mode = Control.FOCUS_NONE
 	_mode_button.visible = false
+	_mode_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_mode_button.pressed.connect(func() -> void: mode_switch_pressed.emit())
-	box.add_child(_mode_button)
+	actions.add_child(_mode_button)
+	actions.add_child(make_button("Menu", func() -> void: menu_pressed.emit(), "Pause menu, settings and credits (Esc)"))
 
 
 func _build_footer() -> void:
@@ -295,3 +301,4 @@ func _sync_preferences() -> void:
 	_labels_toggle.set_pressed_no_signal(Preferences.labels_visible)
 	_trails_toggle.set_pressed_no_signal(Preferences.trails_visible)
 	_rings_toggle.set_pressed_no_signal(Preferences.rings_visible)
+

@@ -14,3 +14,4 @@ tools/**/.venv/
 tools/**/models/
 __pycache__/
 *.pyc
+tools/**/cache/

@@ -2,9 +2,5 @@
 	{
 		"id": "welcome",
 		"text": "Welcome to Orrery. Fly freely through the solar system, follow the planets as they orbit the Sun, and watch time unfold at any speed."
-	},
-	{
-		"id": "scale_notice",
-		"text": "Distances in space are so vast that this view is compressed. Switch to true scale to see how far apart the worlds really are."
 	}
 ]

@@ -1,0 +1,9 @@
+[project]
+name = "orrery-audio-tools"
+version = "0.1.0"
+description = "Procedural music and sound effect generation for Orrery"
+requires-python = ">=3.10,<3.13"
+dependencies = [
+    "numpy>=1.26",
+    "soundfile>=0.12.1",
+]

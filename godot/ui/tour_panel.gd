@@ -4,6 +4,7 @@ extends PanelContainer
 signal previous_pressed
 signal next_pressed
 signal exit_pressed
+signal replay_pressed
 
 const PANEL_WIDTH := 620
 const CONTENT_WIDTH := 590
@@ -15,6 +16,8 @@ var _text: Label
 var _progress := ProgressBar.new()
 var _previous_button: Button
 var _next_button: Button
+var _voice_toggle: Button
+var _replay_button: Button
 
 
 func _init() -> void:
@@ -47,10 +50,21 @@ func _init() -> void:
 	var spacer := Control.new()
 	spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	buttons.add_child(spacer)
+	_voice_toggle = Hud.make_toggle("Voice", "Play the voice-over (captions always stay visible)", Audio.set_narration_enabled)
+	_voice_toggle.size_flags_horizontal = Control.SIZE_SHRINK_END
+	buttons.add_child(_voice_toggle)
+	_replay_button = Hud.make_button("Replay", func() -> void: replay_pressed.emit(), "Replay the voice-over for this step")
+	_replay_button.theme_type_variation = "FlatButton"
+	buttons.add_child(_replay_button)
 	_previous_button = Hud.make_button("Previous", func() -> void: previous_pressed.emit(), "Previous step (Left)")
 	_next_button = Hud.make_accent_button("Next", func() -> void: next_pressed.emit(), "Next step (Right or Enter)")
 	buttons.add_child(_previous_button)
 	buttons.add_child(_next_button)
+
+
+func _ready() -> void:
+	Audio.changed.connect(_sync_voice)
+	_sync_voice()
 
 
 func show_step(tour_title: String, step: Dictionary, index: int, count: int) -> void:
@@ -77,3 +91,8 @@ func _text_for(step: Dictionary) -> String:
 	if Preferences.is_scientist() and step.has("text_scientist"):
 		return step["text_scientist"]
 	return step["text"]
+
+
+func _sync_voice() -> void:
+	_voice_toggle.set_pressed_no_signal(Audio.narration_enabled)
+	_replay_button.disabled = not Audio.narration_enabled

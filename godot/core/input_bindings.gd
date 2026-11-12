@@ -1,5 +1,11 @@
 extends Node
 
+signal changed
+
+const CONFIG_PATH := "user://settings.cfg"
+const CONFIG_SECTION := "input"
+const HEADLESS_DISPLAY := "headless"
+
 const KEY_ACTIONS := {
 	"move_forward": [KEY_W],
 	"move_back": [KEY_S],
@@ -30,20 +36,142 @@ const KEY_ACTIONS := {
 	"delete_body": [KEY_DELETE, KEY_BACKSPACE],
 }
 
+const ACTION_LABELS := {
+	"move_forward": "Move forward",
+	"move_back": "Move back",
+	"move_left": "Move left",
+	"move_right": "Move right",
+	"move_up": "Move up",
+	"move_down": "Move down",
+	"boost": "Speed boost",
+	"time_pause": "Pause time",
+	"time_reverse": "Reverse time",
+	"time_faster": "Faster time",
+	"time_slower": "Slower time",
+	"time_now": "Jump to now",
+	"scale_toggle": "Toggle scale",
+	"focus_next": "Focus next body",
+	"focus_release": "Free flight",
+	"toggle_hud": "Hide interface",
+	"toggle_help": "Controls help",
+	"toggle_grid": "Distance rings",
+	"toggle_labels": "Labels",
+	"toggle_trails": "Orbit lines",
+	"toggle_level": "Information depth",
+	"tour_next": "Next tour stop",
+	"tour_previous": "Previous tour stop",
+	"mode_explore": "Open Explore",
+	"mode_sandbox": "Open Sandbox",
+	"delete_body": "Remove body",
+}
+
 const FOCUS_KEYS: Array[Key] = [KEY_1, KEY_2, KEY_3, KEY_4, KEY_5, KEY_6, KEY_7, KEY_8, KEY_9, KEY_0]
+const CANCEL_LABEL := "Cancel and menu"
+const FOCUS_LABEL := "Focus a body"
+const HELP_SEPARATOR := "/"
+
+var _overrides: Dictionary = {}
 
 
 func _ready() -> void:
+	_load()
+	_drop_conflicting_overrides()
 	for action in KEY_ACTIONS:
-		_register(action, KEY_ACTIONS[action])
+		_bind(action, keys_for(action))
 	for index in FOCUS_KEYS.size():
-		_register("focus_body_%d" % index, [FOCUS_KEYS[index]])
+		_bind("focus_body_%d" % index, [FOCUS_KEYS[index]])
 
 
-func _register(action: StringName, keys: Array) -> void:
-	if not InputMap.has_action(action):
+func keys_for(action: String) -> Array:
+	return _overrides.get(action, KEY_ACTIONS[action])
+
+
+func keys_text(action: String, separator: String = ", ") -> String:
+	var names := PackedStringArray()
+	for key in keys_for(action):
+		names.append(key_name(key))
+	return separator.join(names)
+
+
+func describe(template: String) -> String:
+	var text := template
+	for action: String in KEY_ACTIONS:
+		text = text.replace("{%s}" % action, keys_text(action, HELP_SEPARATOR))
+	return text
+
+
+func conflict_for(action: String, key: int) -> String:
+	for other: String in KEY_ACTIONS:
+		if other != action and keys_for(other).has(key):
+			return ACTION_LABELS.get(other, CANCEL_LABEL)
+	if FOCUS_KEYS.has(key):
+		return FOCUS_LABEL
+	return ""
+
+
+func rebind(action: String, key: Key) -> bool:
+	if not ACTION_LABELS.has(action) or conflict_for(action, key) != "":
+		return false
+	_overrides[action] = [key]
+	_bind(action, [key])
+	_save()
+	changed.emit()
+	return true
+
+
+func reset_to_defaults() -> void:
+	_overrides.clear()
+	for action in KEY_ACTIONS:
+		_bind(action, KEY_ACTIONS[action])
+	_save()
+	changed.emit()
+
+
+func _bind(action: StringName, keys: Array) -> void:
+	if InputMap.has_action(action):
+		InputMap.action_erase_events(action)
+	else:
 		InputMap.add_action(action)
 	for key in keys:
 		var event := InputEventKey.new()
 		event.physical_keycode = key
 		InputMap.action_add_event(action, event)
+
+
+func key_name(physical: int) -> String:
+	var key := physical as Key
+	if DisplayServer.get_name() != HEADLESS_DISPLAY:
+		var mapped := DisplayServer.keyboard_get_keycode_from_physical(key)
+		if mapped != KEY_NONE:
+			key = mapped
+	if key >= KEY_EXCLAM and key <= KEY_ASCIITILDE:
+		return char(key).to_upper()
+	return OS.get_keycode_string(key)
+
+
+func _load() -> void:
+	var config := ConfigFile.new()
+	if config.load(CONFIG_PATH) != OK or not config.has_section(CONFIG_SECTION):
+		return
+	for action in config.get_section_keys(CONFIG_SECTION):
+		var stored: Variant = config.get_value(CONFIG_SECTION, action)
+		if ACTION_LABELS.has(action) and stored is Array and not stored.is_empty():
+			_overrides[action] = stored
+
+
+func _drop_conflicting_overrides() -> void:
+	for action: String in _overrides.keys():
+		for key: int in _overrides[action]:
+			if conflict_for(action, key) != "":
+				_overrides.erase(action)
+				break
+
+
+func _save() -> void:
+	var config := ConfigFile.new()
+	config.load(CONFIG_PATH)
+	if config.has_section(CONFIG_SECTION):
+		config.erase_section(CONFIG_SECTION)
+	for action in _overrides:
+		config.set_value(CONFIG_SECTION, action, _overrides[action])
+	config.save(CONFIG_PATH)
