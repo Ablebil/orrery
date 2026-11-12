@@ -41,6 +41,7 @@ func setup(model: SolarSystemModel) -> void:
 			add_child(trail)
 			_trails[body.id] = trail
 	_build_halo()
+	apply_trail_colors()
 	_belt = AsteroidBelt.new(Astro.GRAVITATIONAL_CONSTANT_KM * _model.bodies[0].mass_kg)
 	add_child(_belt)
 	add_child(_rings)
@@ -94,6 +95,13 @@ func ring_label_entries() -> Array:
 func set_trails_visible(value: bool) -> void:
 	for trail: OrbitTrail in _trails.values():
 		trail.visible = value
+
+
+func apply_trail_colors() -> void:
+	var order := _model.cycle_order()
+	for id: String in _trails:
+		var trail: OrbitTrail = _trails[id]
+		trail.trail_color = Preferences.orbit_color(trail.definition.color, order.find(id))
 
 
 func is_occluded(id: String) -> bool:

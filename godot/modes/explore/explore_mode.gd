@@ -137,6 +137,7 @@ func _on_quality_changed() -> void:
 
 func _on_preferences_changed() -> void:
 	renderer.set_trails_visible(Preferences.trails_visible)
+	renderer.apply_trail_colors()
 	renderer.set_rings_visible(Preferences.rings_visible)
 	_refresh_selection_content()
 	if _tour_player.active and not _current_step.is_empty():
