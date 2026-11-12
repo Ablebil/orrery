@@ -1,7 +1,7 @@
 [
 	{
 		"name": "Solar system",
-		"description": "The Sun, planets and the Moon at the current simulation date",
+		"description": "The Sun, the planets, the major moons, Ceres, and Pluto at the current simulation date",
 		"solar_system": true,
 		"bodies": []
 	},
