@@ -19,6 +19,13 @@
 					"license": "CC BY 4.0",
 					"url": "https://www.solarsystemscope.com/textures/",
 					"text": "Textures by Solar System Scope (https://www.solarsystemscope.com/textures/), licensed under Creative Commons Attribution 4.0 International (https://creativecommons.org/licenses/by/4.0/). Includes the Sun, Mercury, Venus, Earth day, night and clouds, Moon, Mars, Jupiter, Saturn and its rings, Uranus, Neptune, and the stars and Milky Way panorama. Derived from NASA elevation and imagery data."
+				},
+				{
+					"name": "Io, Europa, Ganymede, Callisto, Titan, Ceres, and Pluto textures",
+					"author": "USGS Astrogeology Science Center, NASA/JPL, NASA/JPL-Caltech/Space Science Institute, NASA/JPL-Caltech/UCLA/MPS/DLR/IDA, NASA/JHUAPL/SwRI",
+					"license": "Public domain",
+					"url": "https://planetarymaps.usgs.gov/mosaic/",
+					"text": "Global mosaics from Voyager, Galileo, Cassini, Dawn, and New Horizons images, downsampled and tinted by the Orrery team."
 				}
 			]
 		},
@@ -38,6 +45,13 @@
 					"license": "Public domain",
 					"url": "",
 					"text": "Masses, radii, rotation periods, and pole orientations of the bodies."
+				},
+				{
+					"name": "Planetary satellite mean elements, Horizons ephemerides, and Small-Body Database",
+					"author": "NASA Jet Propulsion Laboratory, Solar System Dynamics",
+					"license": "Public domain",
+					"url": "https://ssd.jpl.nasa.gov/",
+					"text": "Orbits of the Galilean moons, Titan, Ceres, and Pluto."
 				},
 				{
 					"name": "Lunar mean orbital elements",
