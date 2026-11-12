@@ -213,7 +213,7 @@ All orbital and physical data is embedded in `data/bodies.json`, so no network a
 
 ```
 orrery/
-├── docs/            Product and technical documentation, final report
+├── docs/            Product requirements
 ├── godot/           Godot project
 │   ├── core/        Simulation, orbit models, clock, settings
 │   ├── render/      Bodies, trails, shaders, camera
@@ -250,7 +250,7 @@ orrery/
 - [x] Platform: PC (Windows, Linux)
 - [x] Credits screen with names and student IDs, accessible to the user
 - [x] Standalone, no internet connection required
-- [ ] Technologies documented in the report
+- [ ] Technologies documented in the report (maintained outside this repository)
 
 ## 10. Assets and Licensing
 
@@ -271,7 +271,7 @@ The project runs for a fixed **4 weeks**. The plan is expressed in weeks, not ca
 | **3** | Sandbox completion, visuals, audio base | Collisions, presets, body caps, integrator choice, atmosphere and ring shaders, skybox, asteroid belt, audio manager, music, sound effects | F-24 to F-26, F-28, F-40, F-41, F-44 complete. Visual targets met on all presets |
 | **4** | Voice-over, shell, and release | Voice-over generation and integration, main menu, settings, credits, final exports for Windows and Linux, offline test, low-spec approximation test, final report | All P0 items done. P1 items done where schedule allows. Builds verified on Windows and Linux |
 
-The final report is written alongside development. Technique notes, screenshots, and asset records are captured as each feature lands, not left to week 4.
+The final report is written alongside development but kept outside this repository. Technique notes, screenshots, and asset records are captured as each feature lands, not left to week 4.
 
 ### 11.1 Scope Cut Order
 
