@@ -39,6 +39,8 @@ var _focus_actions: Array[StringName] = []
 var _presets: Array[Dictionary] = []
 var _integrator: NBodySimulation.Integrator = NBodySimulation.Integrator.VELOCITY_VERLET
 var _fixed_step_seconds := 0.0
+var _energy_baseline := 0.0
+var _momentum_baseline := 0.0
 
 
 func _build_world() -> void:
@@ -66,6 +68,7 @@ func _build_world() -> void:
 	panel.snapshot_restore_requested.connect(_restore_snapshot)
 	panel.integrator_selected.connect(_set_integrator)
 	panel.time_step_selected.connect(_set_fixed_step)
+	panel.baseline_reset_requested.connect(_reset_conservation_baseline)
 	panel.remove_pressed.connect(_remove_selected)
 	panel.focus_pressed.connect(func() -> void: _fly_to(_selected_id))
 	panel.freeze_toggled.connect(_set_selected_frozen)
@@ -101,6 +104,7 @@ func _process(delta: float) -> void:
 	if _info_timer >= INFO_REFRESH_SECONDS:
 		_info_timer = 0.0
 		_refresh_readout()
+		_refresh_conservation()
 	hud.refresh(clock)
 	hud.set_status(_status_text())
 
@@ -209,6 +213,7 @@ func _install_world(new_world: SandboxWorld) -> void:
 	world.simulation.set_fixed_step_seconds(_fixed_step_seconds)
 	clock.seconds = world.seconds
 	world.bodies_changed.connect(_refresh_count)
+	world.bodies_changed.connect(_reset_conservation_baseline)
 	world.bodies_merged.connect(_on_bodies_merged)
 	renderer.set_world(world)
 	renderer.compute_positions()
@@ -216,6 +221,7 @@ func _install_world(new_world: SandboxWorld) -> void:
 	if world.index_of(camera.anchor_id) < 0:
 		_home_camera()
 	_refresh_count()
+	_reset_conservation_baseline()
 
 
 func _replace_world(candidate: SandboxWorld) -> void:
@@ -481,18 +487,21 @@ func _set_selected_frozen(frozen: bool) -> void:
 	var index := world.index_of(_selected_id)
 	if index >= 0:
 		world.simulation.set_frozen(index, frozen)
+		_reset_conservation_baseline()
 
 
 func _set_selected_mass(mass_kg: float) -> void:
 	var index := world.index_of(_selected_id)
 	if index >= 0:
 		world.simulation.set_mass_kg(index, mass_kg)
+		_reset_conservation_baseline()
 
 
 func _set_selected_radius(radius_km: float) -> void:
 	var index := world.index_of(_selected_id)
 	if index >= 0:
 		world.simulation.set_radius_km(index, radius_km)
+		_reset_conservation_baseline()
 
 
 func _set_selected_color(color: Color) -> void:
@@ -561,3 +570,20 @@ func _update_labels() -> void:
 	_labels.set_entries(entries)
 
 
+
+
+func _reset_conservation_baseline() -> void:
+	_energy_baseline = world.simulation.total_energy_joules()
+	_momentum_baseline = world.simulation.angular_momentum_si()
+	_refresh_conservation()
+
+
+func _refresh_conservation() -> void:
+	if not Preferences.is_scientist():
+		return
+	var simulation := world.simulation
+	var energy := simulation.total_energy_joules()
+	var momentum := simulation.angular_momentum_si()
+	var energy_drift := (energy - _energy_baseline) / absf(_energy_baseline) if _energy_baseline != 0.0 else 0.0
+	var momentum_drift := (momentum - _momentum_baseline) / _momentum_baseline if _momentum_baseline != 0.0 else 0.0
+	panel.set_conservation(energy, energy_drift, momentum, momentum_drift, simulation.has_frozen_bodies())
