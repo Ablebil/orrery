@@ -66,12 +66,16 @@ const ACTION_LABELS := {
 }
 
 const FOCUS_KEYS: Array[Key] = [KEY_1, KEY_2, KEY_3, KEY_4, KEY_5, KEY_6, KEY_7, KEY_8, KEY_9, KEY_0]
+const CANCEL_LABEL := "Cancel and menu"
+const FOCUS_LABEL := "Focus a body"
+const HELP_SEPARATOR := "/"
 
 var _overrides: Dictionary = {}
 
 
 func _ready() -> void:
 	_load()
+	_drop_conflicting_overrides()
 	for action in KEY_ACTIONS:
 		_bind(action, keys_for(action))
 	for index in FOCUS_KEYS.size():
@@ -82,20 +86,37 @@ func keys_for(action: String) -> Array:
 	return _overrides.get(action, KEY_ACTIONS[action])
 
 
-func keys_text(action: String) -> String:
+func keys_text(action: String, separator: String = ", ") -> String:
 	var names := PackedStringArray()
 	for key in keys_for(action):
-		names.append(_key_name(key))
-	return ", ".join(names)
+		names.append(key_name(key))
+	return separator.join(names)
 
 
-func rebind(action: String, key: Key) -> void:
-	if not ACTION_LABELS.has(action):
-		return
+func describe(template: String) -> String:
+	var text := template
+	for action: String in KEY_ACTIONS:
+		text = text.replace("{%s}" % action, keys_text(action, HELP_SEPARATOR))
+	return text
+
+
+func conflict_for(action: String, key: int) -> String:
+	for other: String in KEY_ACTIONS:
+		if other != action and keys_for(other).has(key):
+			return ACTION_LABELS.get(other, CANCEL_LABEL)
+	if FOCUS_KEYS.has(key):
+		return FOCUS_LABEL
+	return ""
+
+
+func rebind(action: String, key: Key) -> bool:
+	if not ACTION_LABELS.has(action) or conflict_for(action, key) != "":
+		return false
 	_overrides[action] = [key]
 	_bind(action, [key])
 	_save()
 	changed.emit()
+	return true
 
 
 func reset_to_defaults() -> void:
@@ -117,7 +138,7 @@ func _bind(action: StringName, keys: Array) -> void:
 		InputMap.action_add_event(action, event)
 
 
-func _key_name(physical: int) -> String:
+func key_name(physical: int) -> String:
 	var key := physical as Key
 	if DisplayServer.get_name() != HEADLESS_DISPLAY:
 		var mapped := DisplayServer.keyboard_get_keycode_from_physical(key)
@@ -136,6 +157,14 @@ func _load() -> void:
 		var stored: Variant = config.get_value(CONFIG_SECTION, action)
 		if ACTION_LABELS.has(action) and stored is Array and not stored.is_empty():
 			_overrides[action] = stored
+
+
+func _drop_conflicting_overrides() -> void:
+	for action: String in _overrides.keys():
+		for key: int in _overrides[action]:
+			if conflict_for(action, key) != "":
+				_overrides.erase(action)
+				break
 
 
 func _save() -> void:

@@ -13,6 +13,7 @@ const PAGE_NAMES: Array[String] = ["Display", "Graphics", "Audio", "Controls"]
 const WINDOW_MODE_NAMES: Array[String] = ["Windowed", "Fullscreen"]
 const CAPTURE_TEXT := "Press a key..."
 const CAPTURE_HINT := "Click an action, then press a key. Esc cancels."
+const CONFLICT_TEXT := "%s is already used for %s. Press another key, or Esc to cancel."
 const DISPLAY_NOTE := "Resolution applies in windowed mode. Fullscreen uses the screen resolution."
 const GRAPHICS_NOTE := (
 	"Lower presets and render scales run faster on older devices. "
@@ -35,6 +36,7 @@ var _music_mute_toggle: Button
 var _voice_over_toggle: Button
 var _binding_buttons: Dictionary = {}
 var _capturing := ""
+var _binding_message: Label
 
 
 func _ready() -> void:
@@ -56,6 +58,9 @@ func _ready() -> void:
 		scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 		box.add_child(scroll)
 		_pages.append(scroll)
+	_binding_message = Hud.make_wrapped_label("", NOTE_WIDTH, "WarningLabel")
+	_binding_message.visible = false
+	box.add_child(_binding_message)
 	_build_display_page(Hud.scroll_content(_pages[0]))
 	_build_graphics_page(Hud.scroll_content(_pages[1]))
 	_build_audio_page(Hud.scroll_content(_pages[2]))
@@ -81,10 +86,17 @@ func _input(event: InputEvent) -> void:
 	if key_event == null or not key_event.pressed or key_event.echo:
 		return
 	get_viewport().set_input_as_handled()
-	var action := _capturing
+	var key := key_event.physical_keycode
+	if key == KEY_ESCAPE or key == KEY_NONE:
+		_cancel_capture()
+		return
+	var conflict := InputBindings.conflict_for(_capturing, key)
+	if conflict != "":
+		_set_binding_message(CONFLICT_TEXT % [InputBindings.key_name(key), conflict])
+		return
+	InputBindings.rebind(_capturing, key)
 	_capturing = ""
-	if key_event.physical_keycode != KEY_ESCAPE and key_event.physical_keycode != KEY_NONE:
-		InputBindings.rebind(action, key_event.physical_keycode)
+	_set_binding_message("")
 	_sync_bindings()
 
 
@@ -217,10 +229,12 @@ func _style_value(label: Label) -> void:
 
 func _begin_capture(action: String) -> void:
 	_capturing = action
+	_set_binding_message("")
 	_sync_bindings()
 
 
 func _cancel_capture() -> void:
+	_set_binding_message("")
 	if _capturing == "":
 		return
 	_capturing = ""
@@ -253,3 +267,8 @@ func _sync_bindings() -> void:
 	for action: String in _binding_buttons:
 		var button: Button = _binding_buttons[action]
 		button.text = CAPTURE_TEXT if action == _capturing else InputBindings.keys_text(action)
+
+
+func _set_binding_message(text: String) -> void:
+	_binding_message.text = text
+	_binding_message.visible = text != ""
