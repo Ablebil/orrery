@@ -57,7 +57,7 @@ func _build_world() -> void:
 	hud.left_column.move_child(tours_chip, 1)
 	hud.set_help(HELP_TEXT)
 	hud.set_mode_switch("Open Sandbox (F2)")
-	for index in model.bodies.size():
+	for index in mini(model.bodies.size(), InputBindings.FOCUS_KEYS.size()):
 		_focus_actions.append(StringName("focus_body_%d" % index))
 	_info_panel.focus_requested.connect(_fly_to)
 	_info_panel.close_requested.connect(_clear_selection)
@@ -221,12 +221,8 @@ func _fly_to(body_id: String, radii: float = CameraRig.FOCUS_DISTANCE_RADII) -> 
 
 
 func _focus_next() -> void:
-	var next_index := 0
-	for index in model.bodies.size():
-		if model.bodies[index].id == camera.anchor_id:
-			next_index = (index + 1) % model.bodies.size()
-			break
-	_focus_body(model.bodies[next_index].id)
+	var order := model.cycle_order()
+	_focus_body(order[(order.find(camera.anchor_id) + 1) % order.size()])
 
 
 func _other_scale_mode() -> ScaleMapper.Mode:
