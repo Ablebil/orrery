@@ -244,17 +244,17 @@ orrery/
 
 ## 9. Course Deliverable Checklist
 
-- [ ] Interactive computer graphics application
-- [ ] Purpose: education, information, entertainment
-- [ ] Presentation: 3D
-- [ ] Platform: PC (Windows, Linux)
-- [ ] Credits screen with names and student IDs, accessible to the user
-- [ ] Standalone, no internet connection required
+- [x] Interactive computer graphics application
+- [x] Purpose: education, information, entertainment
+- [x] Presentation: 3D
+- [x] Platform: PC (Windows, Linux)
+- [x] Credits screen with names and student IDs, accessible to the user
+- [x] Standalone, no internet connection required
 - [ ] Technologies documented in the report
 
 ## 10. Assets and Licensing
 
-- Surface textures: candidates are Solar System Scope and NASA public imagery. Verify each license before inclusion.
+- Surface textures: Solar System Scope (CC BY 4.0) for the Sun, planets, Moon, rings, and sky. USGS Astrogeology global mosaics from NASA missions (public domain) for the Galilean moons, Titan, Ceres, and Pluto, prepared by `tools/textures`.
 - Music and sound effects: use only assets whose license permits redistribution inside an application. Record attribution requirements.
 - Narration: record the TTS engine, voice model, and the voice model's license.
 - Every asset is recorded in `assets/LICENSES.md` with source URL, author, license, and date retrieved.
