@@ -34,7 +34,7 @@ static func from_solar_system(model: SolarSystemModel, start_seconds: float) -> 
 	for body in model.bodies:
 		var later: DVec3 = model.absolute_km[body.id]
 		velocities[body.id] = later.minus(earlier[body.id]).scaled(0.5 / VELOCITY_SAMPLE_SECONDS)
-	_split_barycentric_pairs(model, positions, velocities)
+	_split_barycentric_systems(model, positions, velocities)
 	for body in model.bodies:
 		var velocity: DVec3 = velocities[body.id]
 		var sandbox_body := SandboxBody.new()
@@ -110,20 +110,34 @@ static func _vector(values: Variant) -> DVec3:
 	return DVec3.new()
 
 
-static func _split_barycentric_pairs(model: SolarSystemModel, positions: Dictionary, velocities: Dictionary) -> void:
+static func _split_barycentric_systems(model: SolarSystemModel, positions: Dictionary, velocities: Dictionary) -> void:
+	var systems: Dictionary = {}
 	for body in model.bodies:
 		var parent := model.get_parent_body(body)
 		if parent == null or parent.kind == "star":
 			continue
-		var moon_fraction := body.mass_kg / (body.mass_kg + parent.mass_kg)
-		var center: DVec3 = positions[parent.id]
-		var relative: DVec3 = positions[body.id].minus(center)
-		positions[parent.id] = center.minus(relative.scaled(moon_fraction))
-		positions[body.id] = center.plus(relative.scaled(1.0 - moon_fraction))
-		var center_velocity: DVec3 = velocities[parent.id]
-		var relative_velocity: DVec3 = velocities[body.id].minus(center_velocity)
-		velocities[parent.id] = center_velocity.minus(relative_velocity.scaled(moon_fraction))
-		velocities[body.id] = center_velocity.plus(relative_velocity.scaled(1.0 - moon_fraction))
+		if not systems.has(parent.id):
+			systems[parent.id] = []
+		systems[parent.id].append(body)
+	for parent_id: String in systems:
+		var parent := model.get_body(parent_id)
+		var moons: Array = systems[parent_id]
+		var total_mass := parent.mass_kg
+		var position_shift := DVec3.new()
+		var velocity_shift := DVec3.new()
+		for moon: BodyDefinition in moons:
+			total_mass += moon.mass_kg
+			position_shift = position_shift.plus(positions[moon.id].minus(positions[parent_id]).scaled(moon.mass_kg))
+			velocity_shift = velocity_shift.plus(velocities[moon.id].minus(velocities[parent_id]).scaled(moon.mass_kg))
+		var barycenter: DVec3 = positions[parent_id]
+		var barycenter_velocity: DVec3 = velocities[parent_id]
+		var planet_position := barycenter.minus(position_shift.scaled(1.0 / total_mass))
+		var planet_velocity := barycenter_velocity.minus(velocity_shift.scaled(1.0 / total_mass))
+		for moon: BodyDefinition in moons:
+			positions[moon.id] = planet_position.plus(positions[moon.id].minus(barycenter))
+			velocities[moon.id] = planet_velocity.plus(velocities[moon.id].minus(barycenter_velocity))
+		positions[parent_id] = planet_position
+		velocities[parent_id] = planet_velocity
 
 
 func index_of(id: String) -> int:
