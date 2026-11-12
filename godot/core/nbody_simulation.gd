@@ -8,6 +8,7 @@ const MIN_STEP_SECONDS := 1.0
 const MAX_STEP_SECONDS := 604800.0
 const SOFTENING_FRACTION := 0.5
 const EPSILON := 1.0e-9
+const SI_PER_KM_SQUARED := 1.0e6
 
 var count := 0
 var positions := PackedFloat64Array()
@@ -117,7 +118,7 @@ func shift_to_barycenter() -> void:
 	_accelerations_valid = false
 
 
-func total_energy() -> float:
+func total_energy_joules() -> float:
 	var kinetic := 0.0
 	var potential := 0.0
 	for i in count:
@@ -129,8 +130,40 @@ func total_energy() -> float:
 			var dx := positions[j * 3] - positions[i * 3]
 			var dy := positions[j * 3 + 1] - positions[i * 3 + 1]
 			var dz := positions[j * 3 + 2] - positions[i * 3 + 2]
-			potential -= gm[i] * gm[j] / sqrt(dx * dx + dy * dy + dz * dz)
-	return kinetic + potential
+			var softening := SOFTENING_FRACTION * (radii[i] + radii[j])
+			potential -= gm[i] * gm[j] / sqrt(dx * dx + dy * dy + dz * dz + softening * softening)
+	return (kinetic + potential) / Astro.GRAVITATIONAL_CONSTANT_KM * SI_PER_KM_SQUARED
+
+
+func angular_momentum_si() -> float:
+	var total := 0.0
+	var center := [0.0, 0.0, 0.0]
+	var drift := [0.0, 0.0, 0.0]
+	for i in count:
+		total += gm[i]
+		for axis in 3:
+			center[axis] += gm[i] * positions[i * 3 + axis]
+			drift[axis] += gm[i] * velocities[i * 3 + axis]
+	if total <= 0.0:
+		return 0.0
+	var lx := 0.0
+	var ly := 0.0
+	var lz := 0.0
+	for i in count:
+		var rx: float = positions[i * 3] - center[0] / total
+		var ry: float = positions[i * 3 + 1] - center[1] / total
+		var rz: float = positions[i * 3 + 2] - center[2] / total
+		var vx: float = velocities[i * 3] - drift[0] / total
+		var vy: float = velocities[i * 3 + 1] - drift[1] / total
+		var vz: float = velocities[i * 3 + 2] - drift[2] / total
+		lx += gm[i] * (ry * vz - rz * vy)
+		ly += gm[i] * (rz * vx - rx * vz)
+		lz += gm[i] * (rx * vy - ry * vx)
+	return sqrt(lx * lx + ly * ly + lz * lz) / Astro.GRAVITATIONAL_CONSTANT_KM * SI_PER_KM_SQUARED
+
+
+func has_frozen_bodies() -> bool:
+	return frozen.has(1)
 
 
 func timestep_limit() -> float:
