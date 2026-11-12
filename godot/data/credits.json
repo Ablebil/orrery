@@ -80,7 +80,7 @@
 				{
 					"name": "Background music and sound effects",
 					"author": "Orrery team",
-					"license": "Team-owned, same license as the project",
+					"license": "MIT, same as the project",
 					"url": "",
 					"text": "Generated offline with procedural synthesis. No third-party samples or models."
 				}

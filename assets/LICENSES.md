@@ -17,8 +17,8 @@ Every third-party asset bundled with Orrery is recorded here and surfaced in the
 | Asset | Tool | Model and License | Voice | Notes |
 |---|---|---|---|---|
 | Narration voice-over (`godot/assets/audio/narration/`) | kokoro-onnx (MIT) | Kokoro-82M v1.0, Apache-2.0, https://huggingface.co/hexgrad/Kokoro-82M | `af_bella` | Synthetic speech generated offline during development. The in-app credits must state that the narration is synthesized |
-| Background music (`godot/assets/audio/music/space_ambient.ogg`) | `tools/audio/generate_audio.py` (procedural synthesis with NumPy) | Team-owned, same license as the project. No third-party samples or models | n/a | Generated offline during development by the Orrery team |
-| Sound effects click, place, launch, merge, remove (`godot/assets/audio/effects/`) | `tools/audio/generate_audio.py` (procedural synthesis with NumPy) | Team-owned, same license as the project. No third-party samples or models | n/a | Generated offline during development by the Orrery team |
+| Background music (`godot/assets/audio/music/space_ambient.ogg`) | `tools/audio/generate_audio.py` (procedural synthesis with NumPy) | MIT, same as the project. No third-party samples or models | n/a | Generated offline during development by the Orrery team |
+| Sound effects click, place, launch, merge, remove (`godot/assets/audio/effects/`) | `tools/audio/generate_audio.py` (procedural synthesis with NumPy) | MIT, same as the project. No third-party samples or models | n/a | Generated offline during development by the Orrery team |
 
 ## Data Sources
 
