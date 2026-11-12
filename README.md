@@ -60,6 +60,7 @@ It is aimed at learners from elementary school to university. Every panel switch
   - Low, Medium, or High quality preset, plus a render scale slider.
   - Orbit trail length.
 - **Audio settings.** Separate volumes for music, effects, and narration, a music mute, and a voice-over toggle.
+- **Mouse and touchpad.** Drag or scroll with two fingers to orbit the focused body, and pinch or use the mouse wheel to zoom. Smooth touchpad scrolling is detected automatically, and the scroll behavior can be set to Auto, Orbit, or Zoom.
 - **Controls.** Every action can be rebound. Conflicting bindings are refused, and the on-screen help follows the active keys.
 - **Accessibility.**
   - Interface size of 100%, 115%, or 130%.
@@ -113,13 +114,15 @@ Each build is a single executable with the game data embedded. On Linux, mark it
 
 ## Controls
 
-These are the default bindings. Every action can be rebound in **Settings → Controls**, and **F3** shows the current keys in the application.
+These are the default bindings. Every keyboard action can be rebound in **Settings → Controls**, and **F3** shows the current keys in the application.
 
 | Action | Keys |
 |---|---|
 | Move, down / up | W A S D, Q / E |
-| Look | Right mouse button + move |
-| Flight speed / boost | Mouse wheel / Shift |
+| Orbit the focused body | Left drag, or two-finger scroll on a touchpad |
+| Zoom | Mouse wheel, pinch, or Ctrl + scroll |
+| Look around | Right mouse button + move |
+| Flight speed / boost | Shift + scroll / Shift |
 | Select body / focus body | Left click / double click or 1 – 0 |
 | Next body / free flight | Tab / F |
 | Pause, reverse, slower / faster | Space or P, R, `[` / `]` |
