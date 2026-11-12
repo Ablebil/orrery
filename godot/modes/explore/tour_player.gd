@@ -3,6 +3,7 @@ extends RefCounted
 
 signal step_changed(tour_title: String, step: Dictionary, index: int, count: int)
 signal stopped
+signal finished(tour: Dictionary)
 
 var active := false
 
@@ -22,7 +23,9 @@ func next() -> void:
 	if not active:
 		return
 	if _index + 1 >= _tour["steps"].size():
+		var completed := _tour
 		stop()
+		finished.emit(completed)
 		return
 	_index += 1
 	_emit_step()

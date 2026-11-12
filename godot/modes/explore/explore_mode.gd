@@ -17,6 +17,8 @@ var model: SolarSystemModel
 var renderer := SolarSystemRenderer.new()
 
 var _info_catalog: BodyInfoCatalog
+var _quiz_catalog: QuizCatalog
+var _quiz_panel := QuizPanel.new()
 var _labels := BodyLabels.new()
 var _info_panel := InfoPanel.new()
 var _tour_panel := TourPanel.new()
@@ -36,13 +38,15 @@ func _build_world() -> void:
 	model = SolarSystemModel.new(BodyCatalog.load_bodies())
 	_info_catalog = BodyInfoCatalog.load_catalog()
 	_tours = TourCatalog.load_tours()
+	_quiz_catalog = QuizCatalog.load_catalog()
 	add_child(renderer)
 	renderer.setup(model)
 	hud.add_overlay(_labels)
 	hud.right_column.add_child(_info_panel)
 	hud.left_column.add_child(_tour_menu)
 	hud.bottom_center.add_child(_tour_panel)
-	_tour_menu.populate(_tours)
+	hud.bottom_center.add_child(_quiz_panel)
+	_tour_menu.populate(_tours, _quiz_tour_ids())
 	hud.add_setting(HSeparator.new())
 	hud.add_setting(Hud.section_label("Scale"))
 	hud.add_setting(_scale_control)
@@ -62,9 +66,11 @@ func _build_world() -> void:
 	_info_panel.focus_requested.connect(_fly_to)
 	_info_panel.close_requested.connect(_clear_selection)
 	_tour_menu.tour_selected.connect(_start_tour)
+	_tour_menu.quiz_selected.connect(_start_quiz)
 	_tour_menu.close_requested.connect(_toggle_tour_menu)
 	_tour_player.step_changed.connect(_on_tour_step)
 	_tour_player.stopped.connect(_on_tour_stopped)
+	_tour_player.finished.connect(_on_tour_finished)
 	_tour_panel.previous_pressed.connect(_tour_player.previous)
 	_tour_panel.next_pressed.connect(_tour_player.next)
 	_tour_panel.exit_pressed.connect(_tour_player.stop)
@@ -106,7 +112,10 @@ func _unhandled_input(event: InputEvent) -> void:
 	elif event.is_action_pressed("focus_release"):
 		camera.release_anchor(camera.world_position(_anchor_position()))
 	elif event.is_action_pressed("tour_next"):
-		_tour_player.next()
+		if _quiz_panel.is_open():
+			_quiz_panel.advance()
+		else:
+			_tour_player.next()
 	elif event.is_action_pressed("tour_previous"):
 		_tour_player.previous()
 	elif event.is_action_pressed("cancel"):
@@ -299,6 +308,7 @@ func _start_tour(tour_id: String) -> void:
 	for tour in _tours:
 		if tour["id"] == tour_id:
 			_tour_menu.visible = false
+			_quiz_panel.close_quiz()
 			_clear_selection()
 			_tour_player.start(tour)
 			return
@@ -322,7 +332,9 @@ func _on_tour_stopped() -> void:
 
 
 func _cancel() -> void:
-	if _tour_player.active:
+	if _quiz_panel.is_open():
+		_quiz_panel.close_quiz()
+	elif _tour_player.active:
 		_tour_player.stop()
 	elif _tour_menu.visible:
 		_tour_menu.visible = false
@@ -330,3 +342,26 @@ func _cancel() -> void:
 		_clear_selection()
 	else:
 		_open_pause_menu()
+
+
+func _quiz_tour_ids() -> Array[String]:
+	var ids: Array[String] = []
+	for tour in _tours:
+		if _quiz_catalog.has_quiz(tour["id"]):
+			ids.append(tour["id"])
+	return ids
+
+
+func _start_quiz(tour_id: String) -> void:
+	for tour in _tours:
+		if tour["id"] == tour_id:
+			_tour_menu.visible = false
+			_tour_player.stop()
+			hud.set_help_visible(false)
+			_quiz_panel.start(tour["title"], _quiz_catalog.questions(tour_id, Preferences.is_scientist()))
+			return
+
+
+func _on_tour_finished(tour: Dictionary) -> void:
+	if _quiz_catalog.has_quiz(tour["id"]):
+		_quiz_panel.offer(tour["title"], _quiz_catalog.questions(tour["id"], Preferences.is_scientist()))
