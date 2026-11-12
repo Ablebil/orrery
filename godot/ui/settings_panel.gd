@@ -15,6 +15,7 @@ const CAPTURE_TEXT := "Press a key..."
 const CAPTURE_HINT := "Click an action, then press a key. Esc cancels."
 const CONFLICT_TEXT := "%s is already used for %s. Press another key, or Esc to cancel."
 const DISPLAY_NOTE := "Resolution applies in windowed mode. Fullscreen uses the screen resolution."
+const UI_SCALE_NOTE := "Larger sizes suit high-resolution screens and reading from a distance. 130% works best at 1600 x 900 or above."
 const GRAPHICS_NOTE := (
 	"Lower presets and render scales run faster on older devices. "
 	+ "Changing the preset resets the render scale to the preset default."
@@ -30,6 +31,8 @@ var _preset := SegmentedControl.new(Quality.PRESET_NAMES)
 var _render_scale := HSlider.new()
 var _render_scale_value := Label.new()
 var _trail_length := SegmentedControl.new(Preferences.TRAIL_LENGTH_NAMES)
+var _orbit_palette := SegmentedControl.new(Preferences.ORBIT_PALETTE_NAMES, "Colorblind-safe colors use the Okabe-Ito palette")
+var _ui_scale := SegmentedControl.new(Quality.UI_SCALE_NAMES, "Size of text and panels")
 var _volume_sliders: Array[HSlider] = []
 var _volume_values: Array[Label] = []
 var _music_mute_toggle: Button
@@ -70,6 +73,7 @@ func _ready() -> void:
 	Quality.display_changed.connect(_sync_display)
 	Quality.display_changed.connect(_sync_graphics)
 	Preferences.trail_length_changed.connect(_sync_graphics)
+	Preferences.changed.connect(_sync_graphics)
 	Audio.changed.connect(_sync_audio)
 	InputBindings.changed.connect(_sync_bindings)
 	_sync_display()
@@ -129,6 +133,11 @@ func _build_display_page(page: VBoxContainer) -> void:
 	_resolution.item_selected.connect(func(index: int) -> void: Quality.set_window_size(_resolutions[index]))
 	_add_row(page, "Resolution", _resolution)
 	page.add_child(Hud.make_wrapped_label(DISPLAY_NOTE, NOTE_WIDTH, "DimLabel"))
+	page.add_child(HSeparator.new())
+	page.add_child(Hud.section_label("Accessibility"))
+	_add_row(page, "Interface size", _ui_scale)
+	_ui_scale.selected.connect(func(index: int) -> void: Quality.set_ui_scale(Quality.UI_SCALES[index]))
+	page.add_child(Hud.make_wrapped_label(UI_SCALE_NOTE, NOTE_WIDTH, "DimLabel"))
 
 
 func _build_graphics_page(page: VBoxContainer) -> void:
@@ -154,6 +163,10 @@ func _build_graphics_page(page: VBoxContainer) -> void:
 	_add_row(page, "Trail length", _trail_length)
 	_trail_length.selected.connect(
 		func(index: int) -> void: Preferences.set_trail_length(index as Preferences.TrailLength)
+	)
+	_add_row(page, "Orbit colors", _orbit_palette)
+	_orbit_palette.selected.connect(
+		func(index: int) -> void: Preferences.set_orbit_palette(index as Preferences.OrbitPalette)
 	)
 
 
@@ -245,6 +258,7 @@ func _sync_display() -> void:
 	_window_mode.select(1 if Quality.fullscreen else 0)
 	_resolution.select(_resolutions.find(Quality.window_size))
 	_resolution.disabled = Quality.fullscreen
+	_ui_scale.select(Quality.UI_SCALES.find(Quality.ui_scale))
 
 
 func _sync_graphics() -> void:
@@ -252,6 +266,7 @@ func _sync_graphics() -> void:
 	_render_scale.set_value_no_signal(Quality.render_scale * 100.0)
 	_render_scale_value.text = "%d%%" % roundi(Quality.render_scale * 100.0)
 	_trail_length.select(Preferences.trail_length)
+	_orbit_palette.select(Preferences.orbit_palette)
 
 
 func _sync_audio() -> void:
